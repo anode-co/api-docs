@@ -1,0 +1,162 @@
+openapi: 3.0.1
+info:
+  title: Anode VPN Server
+  description: 'VPN server for Anode at [http://anode.co](http://anode.co)'
+  termsOfService: 'http://anode.co/terms/'
+  contact:
+    email: info@anode.co
+  license:
+    name: LGPL 3.0
+    url: 'https://www.gnu.org/licenses/lgpl-3.0.en.html'
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Anode
+  url: 'http://anode.co'
+servers:
+  - url: 'https://api.anode.co/vpn/1.0/'
+tags:
+  - name: log
+    description: 'Log connections, disconnections, and errors'
+    externalDocs:
+      description: Find out more
+      url: 'http://api.anode.co'
+paths:
+  /vpn/client/event/:
+    post:
+      tags:
+        - event
+      summary: Add a loggable event
+      operationId: addLogItem
+      requestBody:
+        description: Client logs an event
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/Success'
+        '405':
+          description: Invalid input
+          content: {}
+        '403':
+          description: Unauthorized
+          content: {}
+      security:
+        - api_key:
+          - 'write:event'
+      
+components:
+  schemas:
+    Event:
+      type: object
+      properties:
+        public_key:
+          type: string
+          description: Client's cjdns public key
+          example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+        error:
+          type: string
+          example: connection, disconnection, error
+          enum: 
+            - connection_failed
+            - disconnection
+            - route_stopped
+            - cjdns_crash
+            - connection
+            - disconnection
+            - other
+          description: >
+            Error type:
+             * `connection_failed` - Could not connect
+             * `disconnection` - Unexpected disconnection
+             * `route_stopped` - Connected but unable to route traffic
+             * `cjdns_crash` - CJDNS crashed
+             * `connection` - VPN client connected
+             * `disconnection` - VPN client disconnected
+             * `other` - Other event, use 'message' to explain
+        client_software_version:
+          type: string
+          description: VPN client software version
+          example: anode-0.9.11a
+        client_os:
+          type: string
+          example: Android
+          enum:
+            - Android
+            - iOS
+            - MacOS
+            - Windows
+            - Linux
+          description: >
+            Client OS:
+              * `Android` - Android smartphones and tablets
+              * `iOS` - iPhone, iPad, and iWatch
+              * `MacOS` - Apple laptops and desktops
+              * `Windows` - Windows-based computers
+              * `Linux` - Linux-based computers
+        client_os_version:
+          type: string
+          description: Client's OS version, such as Android 9.1
+          example: 9.1
+        local_timestamp:
+          type: string
+          format: date-time
+          description: Client's local date-time, as defined by  RFC 3339, section 5.6
+          example:
+            2017-07-21T17:32:28Z
+        ip4_address:
+          type: string
+          format: ipv4
+          description: User's IPv4 address on the network device that's connected to the VPN
+          example: 91.207.175.41
+        ip6_address:
+          type: string
+          format: ipv6
+          description: User's IPv46 address on the network device that's connected to the VPN
+          example:
+            fc29:c42b:fa32:b411:71c7:cf70:98c6:9427
+        message:
+          type: string
+          description: A human-readable explanation of the error message
+          example:
+            cjdns route failed unexpectedly
+        stacktrace:
+          type: string
+          description: (stack trace information)
+          example: >
+            1588074618 INFO RandomSeed.c:42 Attempting to seed random number generator\n1588074618 INFO RandomSeed.c:50 Trying random seed [/dev/urandom] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [/proc/sys/kernel/random/uuid (Linux)] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [getentropy(2)] Success1588074618 INFO RandomSeed.c:64 Seeding random number generator succeeded with [3] sources\n1588074618 INFO LibuvEntropyProvider.c:59 Taking clock samples every [1000]ms for random generator\n1588074618 DEBUG Core.c:471 Getting pre-configuration from client\n1588074618 DEBUG Pipe.c:268 Pipe [(null)] established connection\n1588074618 DEBUG Core.c:474 Finished getting pre-configuration from client\n1588074618 DEBUG UDPAddrIface.c:289 Binding to address [127.0.0.1:11234]\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [127.0.0.1:11234]\n1588074618 INFO cjdroute2.c:736 Cjdns i386 linux +seccomp\n1588074618 INFO cjdroute2.c:740 Checking for running instance...\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:38820]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 DEBUG Pipe.c:153 Buffering a message\n1588074618 DEBUG cjdroute2.c:815 Sent [144] bytes to core\n1588074618 DEBUG Pipe.c:268 Pipe [/data/data/co.anode.anodevpn/files/cjdroute.sock] established connection\n1588074618 DEBUG Pipe.c:290 Sending buffered message\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:59077]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 INFO Configurator.c:135 Checking authorized password 0.\n1588074618 INFO Configurator.c:159 Adding authorized password \#[0] for user [default-login].\n1588074618 INFO Configurator.c:197 Setting beacon mode UDPInterface to [2].\n1588074618 INFO Configurator.c:465 Setting up all ETHInterfaces...\n1588074618 WARN Configurator.c:111 Got error [Failed to configure tunnel [TUNInterface_linux.c:65 open(\"\\/dev\\/tun\") [Permission denied]]] calling [Core_initTunnel], ignoring.\n1588074618 DEBUG Configurator.c:638 Security_noforks()\n1588074618 DEBUG Configurator.c:663 Security_setupComplete()\n1588074618 DEBUG Configurator.c:747 Cjdns started in the background\n
+          
+      xml:
+        name: Error
+    Success:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Describes the status
+          example: log added
+      xml:
+        name: Success
+  securitySchemes:
+    anode_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'http://api.anode.co/vpn/1.0/oauth/'
+          scopes:
+            'write:connection': Write a connection log
+            'delete:connection': Write a disconnection log
+            'write:error': Write an error log
+    api_key:
+      type: apiKey
+      name: X-API-KEY
+      in: header
+
