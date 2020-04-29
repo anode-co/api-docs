@@ -12,8 +12,8 @@ externalDocs:
 servers:
   - url: 'https://api.anode.co/vpn/1.0/'
 tags:
-  - name: log
-    description: 'Log connections, disconnections, and errors'
+  - name: events
+    description: 'The VPN client sends events to the VPN API. This includes router crashes, vpn connection errors, and app crashes'
     externalDocs:
       description: Find out more
       url: 'http://api.anode.co'
@@ -21,7 +21,7 @@ paths:
   /vpn/client/event/:
     post:
       tags:
-        - event
+        - events
       summary: Add a loggable event
       operationId: addLogItem
       requestBody:
