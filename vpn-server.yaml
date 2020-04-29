@@ -50,7 +50,7 @@ paths:
           description: Unauthorized
           content: {}
       security:
-        - api_key:
+        - ApiKey:
           - 'write:event'
       
 components:
@@ -146,16 +146,7 @@ components:
       xml:
         name: Success
   securitySchemes:
-    anode_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: 'http://api.anode.co/vpn/1.0/oauth/'
-          scopes:
-            'write:connection': Write a connection log
-            'delete:connection': Write a disconnection log
-            'write:error': Write an error log
-    api_key:
+    ApiKey:
       type: apiKey
       name: X-API-KEY
       in: header
