@@ -5,23 +5,177 @@ info:
   termsOfService: 'http://anode.co/terms/'
   contact:
     email: info@anode.co
-  version: 0.1
+  version: "0.2"
 externalDocs:
   description: Find out more about Anode
   url: 'http://anode.co'
 servers:
-  - url: 'https://api.anode.co/vpn/1.0/'
+  - url: 'https://api.anode.co/vpn/0.2/'
 tags:
-  - name: events
-    description: 'The VPN client sends events to the VPN API. This includes router crashes, vpn connection errors, and app crashes'
+  - name: Events
+    description: 'Client-side loggable events'
+    externalDocs:
+      description: Find out more
+      url: 'http://api.anode.co'
+  - name: Clients
+    description: 'Client software'
+    externalDocs:
+      description: Find out more
+      url: 'http://api.anode.co'
+  - name: Servers
+    description: 'VPN servers'
     externalDocs:
       description: Find out more
       url: 'http://api.anode.co'
 paths:
+  /vpn/servers/:
+    get:
+      tags:
+        - Servers
+      summary: Get a list of available VPN servers
+      operationId: getVpnServerList
+      responses:
+        '200':
+          description: Ok. Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VPN%20Server'
+      security:
+        - ApiKey: 
+            - 'read:vpn_list'
+  /vpn/servers/{cjdnsPublicKey}/:
+    get:
+      tags:
+        - Servers
+      summary: Get info about a VPN server
+      operationId: getVpnServer
+      parameters:
+        - in: path
+          name: cjdnsPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN server cjdns public key
+          required: true
+      responses:
+        '200':
+          description: Ok. Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VPN%20Server'
+      security:
+        - ApiKey: 
+            - 'read:vpn_list'
+  /vpn/servers/{serverPublicKey}/connect/{clientPublicKey}/:
+    get:
+      tags:
+        - Servers
+      summary: Connect to a VPN server
+      operationId: checkVpnServerConnectionStatus
+      parameters:
+        - in: path
+          name: serverPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN Server cjdns public key
+          required: true
+        - in: path
+          name: clientPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN Server cjdns public key
+          required: true
+      responses:
+        '200':
+          description: Ok. Successful operation, waiting for connection
+        '401':
+          description: Unauthorized. The connection or authorization was rejected
+        '404':
+          description: Not Found. This client is not connected
+        '407':
+          description: Proxy Authentication Required. Waiting for server authorization or initial connection
+      security:
+        - ApiKey: 
+            - 'read:vpn_connect'
+    post:
+      tags:
+        - Servers
+      summary: Connect to a VPN server
+      operationId: connectToVpnServer
+      parameters:
+        - in: path
+          name: serverPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN Server cjdns public key
+          required: true
+        - in: path
+          name: clientPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN Server cjdns public key
+          required: true
+      responses:
+        '200':
+          description: Ok. Successful operation, waiting for connection
+        '403':
+          description: Forbidden
+      security:
+        - ApiKey: 
+            - 'write:vpn_connect'
+  /vpn/client/version/{clientOs}/:
+    get:
+      tags:
+        - Clients
+      summary: Get information about most recent version for a client
+      operationId: getLatestClientVersion
+      parameters:
+        - in: path
+          name: clientOs
+          schema:
+            type: string
+            example: Android
+            enum:
+              - Android
+              - iOS
+              - MacOS
+              - Windows
+              - Linux
+          description: >
+            Client OS:
+              * `Android` - Android smartphones and tablets
+              * `iOS` - iPhone, iPad, and iWatch
+              * `MacOS` - Apple laptops and desktops
+              * `Windows` - Windows-based computers
+              * `Linux` - Linux-based computers
+          required: true
+      responses:
+        '200':
+          description: OK. Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client%20Software%20Version'
+        '405':
+          description: Invalid input
+        '404':
+          description: Not found. Client OS not found or not supported 
+      security:
+        - ApiKey:
+          - 'read:version'
+        
   /vpn/client/event/:
     post:
       tags:
-        - events
+        - Events
       summary: Add a loggable event
       operationId: addLogItem
       requestBody:
@@ -33,19 +187,11 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/Success'
+          description: OK. Event logged
         '405':
           description: Invalid input
-          content: {}
         '403':
           description: Unauthorized
-          content: {}
       security:
         - ApiKey:
           - 'write:event'
@@ -61,7 +207,7 @@ components:
           example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
         error:
           type: string
-          example: connection, disconnection, error
+          example: connection
           enum: 
             - connection_failed
             - disconnection
@@ -82,7 +228,7 @@ components:
         client_software_version:
           type: string
           description: VPN client software version
-          example: anode-0.9.11a
+          example: android-anode-0.9.11a
         client_os:
           type: string
           example: Android
@@ -102,18 +248,17 @@ components:
         client_os_version:
           type: string
           description: Client's OS version, such as Android 9.1
-          example: 9.1
+          example: "9.1"
         local_timestamp:
           type: string
           format: date-time
           description: Client's local date-time, as defined by  RFC 3339, section 5.6
-          example:
-            2017-07-21T17:32:28Z
+          example: "2017-07-21T17:32:28Z"
         ip4_address:
           type: string
           format: ipv4
           description: User's IPv4 address on the network device that's connected to the VPN
-          example: 91.207.175.41
+          example: "91.207.175.41"
         ip6_address:
           type: string
           format: ipv6
@@ -133,15 +278,118 @@ components:
           
       xml:
         name: Error
-    Success:
+    Client Software Version:
       type: object
       properties:
-        status:
+        client_software_version:
           type: string
-          description: Describes the status
-          example: log added
+          description: VPN client software version
+          example: android-anode-0.9.11a
+        release_datetime:
+          type: string
+          format: date-time
+          description: date-time of official release, at server time, as defined by  RFC 3339, section 5.6
+          example: "2017-07-21T17:32:28Z"
       xml:
-        name: Success
+        name: Client Software Version
+    VPN Server:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Descriptive name of the server
+          example: Kenny G
+        public_key:
+          type: string
+          description: cjdns public key
+          example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+        bandwidth_bps:
+          type: integer
+          description: Approximate maximum bandwidth in bps
+          example: 10485760
+        network:
+          type: object
+          properties:
+            nat:
+              type: boolean
+              description: true if the network uses NAT
+              example: true
+            per_client_allocation_size:
+              type: string
+              nullable: true
+              description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
+              example: "/0"
+            nat_exit_range:
+              type: object
+              nullable: true
+              description: IP address range 
+              properties:
+                min:
+                  type: string
+                  format: 
+                    anyOf:
+                      - ipv4
+                      - ipv6
+                  description: Low end of exit IP range range
+                  example: "24.232.89.32"
+                max:
+                  type: string
+                  format:
+                    anyOf:
+                      - ipv4
+                      - ipv6
+                  description: High end of exit IP range range
+                  example: "24.232.89.32"
+            client_allocation_range:
+              type: object
+              description: IP address range available for allocation
+              properties:
+                min:
+                  type:
+                    anyOf:
+                      - ipv4
+                      - ipv6
+                  description: Low end of IP range. Can be IPv4 or IPv6
+                  example: "10.0.0.1"
+                max:
+                  type:
+                    anyOf:
+                      - ipv4
+                      - ipv6
+                  description: High end of IP range. Can be IPv4 or IPv6
+                  example: "10.0.0.29"
+          description: VPN client software version
+        peering_lines:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/cjdns%20Peering%20Line'
+        online_since_datetime:
+          type: string
+          format: date-time
+          description: date-time of first appearance, at server time, as defined by  RFC 3339, section 5.6
+          example: "2017-07-21T17:32:28Z"
+      xml:
+        name: Client Software Version
+    cjdns Peering Line:
+      type: object
+      properties:
+        login:
+          type: string
+          description: username authorized on cjdns server
+          example: my-cjdns-username
+        password:
+          type: string
+          description: password authorized on cjdns server
+          example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
+    VPN Client Connection Request:
+      type: object
+      properties:
+        public_Key:
+          type: string
+          description: Client cjdns public key
+          example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
+      xml:
+        name: Client Software Version
   securitySchemes:
     ApiKey:
       type: apiKey
