@@ -236,7 +236,7 @@ paths:
     post:
       tags:
         - Events
-      summary: Add a loggable event
+      summary: Client adds a loggable event such as a crash report
       operationId: addLogItem
       requestBody:
         description: Client logs an event
