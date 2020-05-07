@@ -451,7 +451,7 @@ components:
         last_seen_datetime:
           type: string
           format: date-time
-          description: date-time of first appearance, at server time, as defined by  RFC 3339, section 5.6
+          description: date-time of most recent appearance, at server time, as defined by  RFC 3339, section 5.6
           example: "2017-07-21T17:32:28Z"
       xml:
         name: Client Software Version
