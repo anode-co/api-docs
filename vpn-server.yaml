@@ -32,7 +32,7 @@ paths:
     get:
       tags:
         - Servers
-      summary: Get a list of available VPN servers
+      summary: Client  gets a list of available VPN servers
       operationId: getVpnServerList
       responses:
         '200':
@@ -46,15 +46,38 @@ paths:
       security:
         - ApiKey: 
             - 'read:vpn_list'
-  /vpn/servers/{cjdnsPublicKey}/:
+    post:
+      tags:
+        - Servers
+      summary: Admin registers new server
+      operationId: registerVpnServer
+      requestBody:
+        description: Admin registers a new VPN
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VPN%20Server'
+        required: true
+      
+      responses:
+        '201':
+          description: Created. Server registered
+        '400':
+          description: Bad Request. Invalid input
+        '403':
+          description: Forbidden. User isn't authorized to  register new servers
+      security:
+        - ApiKey: 
+            - 'write:vpn_server'
+  /vpn/servers/{serverPublicKey}/:
     get:
       tags:
         - Servers
-      summary: Get info about a VPN server
+      summary: Client gets info about a VPN server
       operationId: getVpnServer
       parameters:
         - in: path
-          name: cjdnsPublicKey
+          name: serverPublicKey
           schema:
             type: string
             example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
@@ -66,15 +89,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VPN%20Server'
+                $ref: '#/components/schemas/VPN%20Server'  
       security:
         - ApiKey: 
             - 'read:vpn_list'
+    delete:
+      tags:
+        - Servers
+      summary: Admin removes a VPN server
+      operationId: deleteVpnServer
+      parameters:
+        - in: path
+          name: serverPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN server cjdns public key
+          required: true
+      responses:
+        '202':
+          description: Accepted. The server will be removed
+        '400':
+          description: Bad Request. Invalid input
+        '403':
+          description: Forbidden. User isn't authorized to  register new servers
+      security:
+        - ApiKey: 
+            - 'delete:vpn_server'
+          
   /vpn/servers/{serverPublicKey}/connect/{clientPublicKey}/:
     get:
       tags:
         - Servers
-      summary: Connect to a VPN server
+      summary: Client requests a connection to a VPN server
       operationId: checkVpnServerConnectionStatus
       parameters:
         - in: path
@@ -102,40 +149,12 @@ paths:
           description: Proxy Authentication Required. Waiting for server authorization or initial connection
       security:
         - ApiKey: 
-            - 'read:vpn_connect'
-    post:
-      tags:
-        - Servers
-      summary: Connect to a VPN server
-      operationId: connectToVpnServer
-      parameters:
-        - in: path
-          name: serverPublicKey
-          schema:
-            type: string
-            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
-          description: VPN Server cjdns public key
-          required: true
-        - in: path
-          name: clientPublicKey
-          schema:
-            type: string
-            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
-          description: VPN Server cjdns public key
-          required: true
-      responses:
-        '200':
-          description: Ok. Successful operation, waiting for connection
-        '403':
-          description: Forbidden
-      security:
-        - ApiKey: 
             - 'write:vpn_connect'
   /vpn/client/version/{clientOs}/:
     get:
       tags:
         - Clients
-      summary: Get information about most recent version for a client
+      summary: Client gets information about most recent version for a client
       operationId: getLatestClientVersion
       parameters:
         - in: path
@@ -144,18 +163,18 @@ paths:
             type: string
             example: Android
             enum:
-              - Android
-              - iOS
-              - MacOS
-              - Windows
-              - Linux
+              - android
+              - ios
+              - macos
+              - windows
+              - linux
           description: >
             Client OS:
-              * `Android` - Android smartphones and tablets
-              * `iOS` - iPhone, iPad, and iWatch
-              * `MacOS` - Apple laptops and desktops
-              * `Windows` - Windows-based computers
-              * `Linux` - Linux-based computers
+              * `android` - Android smartphones and tablets
+              * `ios` - iPhone, iPad, and iWatch
+              * `macos` - Apple laptops and desktops
+              * `windows` - Windows-based computers
+              * `linux` - Linux-based computers
           required: true
       responses:
         '200':
@@ -171,7 +190,48 @@ paths:
       security:
         - ApiKey:
           - 'read:version'
-        
+    post:
+      tags:
+        - Clients
+      summary: Admin sets the latest client version and download URL
+      operationId: setLatestClientVersion
+      parameters:
+        - in: path
+          name: clientOs
+          schema:
+            type: string
+            example: Android
+            enum:
+              - android
+              - ios
+              - macos
+              - windows
+              - linux
+          description: >
+            Client OS:
+              * `android` - Android smartphones and tablets
+              * `ios` - iPhone, iPad, and iWatch
+              * `macos` - Apple laptops and desktops
+              * `windows` - Windows-based computers
+              * `linux` - Linux-based computers
+          required: true
+      requestBody:
+        description: Client Software version and download URL
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client%20Software%20Version%20Request%20Body'
+        required: true
+      responses:
+        '201':
+          description: Created. A new version has been saved
+        '405':
+          description: Invalid input
+        '403':
+          description: Forbidden. Access to create a new version is not authorized
+      security:
+        - ApiKey:
+          - 'write:version'
   /vpn/client/event/:
     post:
       tags:
@@ -285,13 +345,33 @@ components:
           type: string
           description: VPN client software version
           example: android-anode-0.9.11a
+        binary_download_url:
+          type: string
+          format: uri
+          description: URL of the binary for download
+          example: https://anode.co/downloads/android-anode-0.9.11a.apk
         release_datetime:
           type: string
+          nullable: true
           format: date-time
           description: date-time of official release, at server time, as defined by  RFC 3339, section 5.6
           example: "2017-07-21T17:32:28Z"
       xml:
         name: Client Software Version
+    Client Software Version Request Body:
+      type: object
+      properties:
+        client_software_version:
+          type: string
+          description: VPN client software version
+          example: android-anode-0.9.11a
+        binary_download_url:
+          type: string
+          format: uri
+          description: URL of the binary for download
+          example: https://anode.co/downloads/android-anode-0.9.11a.apk
+      xml:
+        name: Client Software Version Request Body
     VPN Server:
       type: object
       properties:
