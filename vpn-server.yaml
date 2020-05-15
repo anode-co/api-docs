@@ -10,7 +10,7 @@ externalDocs:
   description: Find out more about Anode
   url: 'http://anode.co'
 servers:
-  - url: 'https://api.anode.co/vpn/0.2/'
+  - url: 'https://api.anode.co/api/0.2/'
 tags:
   - name: Events
     description: 'Client-side loggable events'
