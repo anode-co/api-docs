@@ -107,8 +107,8 @@ paths:
           description: VPN server cjdns public key
           required: true
       responses:
-        '202':
-          description: Accepted. The server will be removed
+        '200':
+          description: OK. The server is removed from the list
         '400':
           description: Bad Request. Invalid input
         '403':
@@ -140,7 +140,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Ok. Successful operation, waiting for connection
+          description: Ok. Successful operation, client authorized to connect to VPN
         '401':
           description: Unauthorized. The connection or authorization was rejected
         '404':
@@ -309,6 +309,14 @@ components:
           type: string
           description: Client's OS version, such as Android 9.1
           example: "9.1"
+        cpu_utilization_percent:
+          type: string
+          description: Percent CPU utilization (or if unavailable, the system CPU utilization number, e.g. 1.32)
+          example: 34
+        available_memory_bytes:
+          type: string
+          description: The amount of available system memory in bytes
+          example: 340243234
         local_timestamp:
           type: string
           format: date-time
@@ -341,6 +349,19 @@ components:
     Client Software Version:
       type: object
       properties:
+        major_number:
+          type: int
+          description: Major version number
+          example: 0
+        minor_number:
+          type: int
+          description: Minor version number
+          example: 1
+        revision_number:
+          type: string
+          nullable: true
+          description: Revision Number
+          example: 11a
         client_software_version:
           type: string
           description: VPN client software version
@@ -350,6 +371,11 @@ components:
           format: uri
           description: URL of the binary for download
           example: https://anode.co/downloads/android-anode-0.9.11a.apk
+        certificate_url:
+          type: string
+          format: uri
+          description: URL of the binary for download
+          example: https://anode.co/downloads/certificates/android-anode-0.9.11a.pem
         release_datetime:
           type: string
           nullable: true
@@ -361,6 +387,23 @@ components:
     Client Software Version Request Body:
       type: object
       properties:
+        client_os:
+          type: string
+          description: Client OS name
+          example: android
+        major_number:
+          type: int
+          description: Major version number
+          example: 0
+        minor_number:
+          type: int
+          description: Minor version number
+          example: 1
+        revision_number:
+          type: string
+          nullable: true
+          description: Revision Number
+          example: 11a
         client_software_version:
           type: string
           description: VPN client software version
@@ -370,6 +413,11 @@ components:
           format: uri
           description: URL of the binary for download
           example: https://anode.co/downloads/android-anode-0.9.11a.apk
+        certificate_url:
+          type: string
+          format: uri
+          description: URL of the binary for download
+          example: https://anode.co/downloads/certificates/android-anode-0.9.11a.pem
       xml:
         name: Client Software Version Request Body
     VPN Server:
@@ -390,7 +438,7 @@ components:
         network:
           type: object
           properties:
-            nat:
+            uses_nat:
               type: boolean
               description: true if the network uses NAT
               example: true
@@ -399,27 +447,29 @@ components:
               nullable: true
               description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
               example: "/0"
-            nat_exit_range:
-              type: object
-              nullable: true
-              description: IP address range 
-              properties:
-                min:
-                  type: string
-                  format: 
-                    anyOf:
-                      - ipv4
-                      - ipv6
-                  description: Low end of exit IP range range
-                  example: "24.232.89.32"
-                max:
-                  type: string
-                  format:
-                    anyOf:
-                      - ipv4
-                      - ipv6
-                  description: High end of exit IP range range
-                  example: "24.232.89.32"
+            nat_exit_ranges:
+              type: array
+              items:
+                type: object
+                nullable: true
+                description: IP address range 
+                properties:
+                  min:
+                    type: string
+                    format: 
+                      anyOf:
+                        - ipv4
+                        - ipv6
+                    description: Low end of exit IP range range
+                    example: "24.232.89.32"
+                  max:
+                    type: string
+                    format:
+                      anyOf:
+                        - ipv4
+                        - ipv6
+                    description: High end of exit IP range range
+                    example: "24.232.89.32"
             client_allocation_ranges:
               type: array
               items:
@@ -442,9 +492,10 @@ components:
                     example: "10.0.0.29"
           description: VPN client software version
         peering_lines:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/cjdns%20Peering%20Line'
+          type: array
+          items:
+            schema:
+              $ref: '#/components/schemas/cjdns%20Peering%20Line'
         online_since_datetime:
           type: string
           format: date-time
@@ -460,6 +511,10 @@ components:
     cjdns Peering Line:
       type: object
       properties:
+        name:
+          type: string
+          description: Human-friendly name of the peering line
+          example: Stretch Armstrong
         login:
           type: string
           description: username authorized on cjdns server
