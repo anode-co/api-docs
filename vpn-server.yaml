@@ -40,9 +40,26 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VPN%20Server'
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: total number of servers available
+                    example: 1
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: https://vpn.anode.co/api/0.2/vpn/servers/?limit=50&offset=100
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: https://vpn.anode.co/api/0.2/vpn/servers/?limit=50&offset=0
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VPN%20Server'
       security:
         - ApiKey: 
             - 'read:vpn_list'
