@@ -333,11 +333,11 @@ components:
           description: Client's OS version, such as Android 9.1
           example: "9.1"
         cpu_utilization_percent:
-          type: string
+          type: float
           description: Percent CPU utilization (or if unavailable, the system CPU utilization number, e.g. 1.32)
           example: 34
         available_memory_bytes:
-          type: string
+          type: integer
           description: The amount of available system memory in bytes
           example: 340243234
         local_timestamp:
