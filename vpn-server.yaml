@@ -292,6 +292,9 @@ components:
             - cjdns_crash
             - connection
             - disconnection
+            - cjdroute
+            - cjdns_socket
+            - vpn_service
             - other
           description: >
             Error type:
@@ -301,6 +304,9 @@ components:
              * `cjdns_crash` - CJDNS crashed
              * `connection` - VPN client connected
              * `disconnection` - VPN client disconnected
+             * `cjdroute` - Cdjns route problem
+             * `cjdns_socket` - Cjdns socket problem
+             * `vpn_service` - VPN service issue
              * `other` - Other event, use 'message' to explain
         client_software_version:
           type: string
