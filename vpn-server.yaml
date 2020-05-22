@@ -482,6 +482,14 @@ components:
           type: integer
           description: Approximate maximum bandwidth in bps
           example: 10485760
+        region:
+          type: string
+          description: The state or province where the VPN exit node resides
+          example: 'California'
+        country_code:
+          type: string
+          description: The 2-letter ISO3166 country code representing the country where the VPN exit node resides
+          example: 'US'
         network:
           type: object
           properties:
