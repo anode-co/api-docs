@@ -62,7 +62,7 @@ paths:
                       $ref: '#/components/schemas/VPN%20Server'
       security:
         - ApiKey: 
-            - 'read:vpn_list'
+            - 'read:vpnList'
     post:
       tags:
         - Servers
@@ -85,7 +85,7 @@ paths:
           description: Forbidden. User isn't authorized to  register new servers
       security:
         - ApiKey: 
-            - 'write:vpn_server'
+            - 'write:vpnServer'
   /vpn/servers/{serverPublicKey}/:
     get:
       tags:
@@ -109,7 +109,7 @@ paths:
                 $ref: '#/components/schemas/VPN%20Server'  
       security:
         - ApiKey: 
-            - 'read:vpn_list'
+            - 'read:vpnList'
     delete:
       tags:
         - Servers
@@ -132,7 +132,7 @@ paths:
           description: Forbidden. User isn't authorized to  register new servers
       security:
         - ApiKey: 
-            - 'delete:vpn_server'
+            - 'delete:vpnServer'
           
   /vpn/servers/{serverPublicKey}/connect/{clientPublicKey}/:
     get:
@@ -166,7 +166,7 @@ paths:
           description: Proxy Authentication Required. Waiting for server authorization or initial connection
       security:
         - ApiKey: 
-            - 'write:vpn_connect'
+            - 'write:vpnConnect'
   /vpn/client/version/{clientOs}/:
     get:
       tags:
@@ -278,7 +278,7 @@ components:
     Event:
       type: object
       properties:
-        public_key:
+        publicKey:
           type: string
           description: Client's cjdns public key
           example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
@@ -286,33 +286,33 @@ components:
           type: string
           example: connection
           enum: 
-            - connection_failed
+            - connectionFailed
             - disconnection
-            - route_stopped
-            - cjdns_crash
+            - routeStopped
+            - cjdnsCrash
             - connection
             - disconnection
             - cjdroute
-            - cjdns_socket
-            - vpn_service
+            - cjdnsSocket
+            - vpnService
             - other
           description: >
             Error type:
-             * `connection_failed` - Could not connect
+             * `connectionFailed` - Could not connect
              * `disconnection` - Unexpected disconnection
-             * `route_stopped` - Connected but unable to route traffic
-             * `cjdns_crash` - CJDNS crashed
+             * `routeStopped` - Connected but unable to route traffic
+             * `cjdnsCrash` - CJDNS crashed
              * `connection` - VPN client connected
              * `disconnection` - VPN client disconnected
              * `cjdroute` - Cdjns route problem
-             * `cjdns_socket` - Cjdns socket problem
-             * `vpn_service` - VPN service issue
+             * `cjdnsSocket` - Cjdns socket problem
+             * `vpnService` - VPN service issue
              * `other` - Other event, use 'message' to explain
-        client_software_version:
+        clientSoftwareVersion:
           type: string
           description: VPN client software version
           example: android-anode-0.9.11a
-        client_os:
+        clientOs:
           type: string
           example: Android
           enum:
@@ -328,29 +328,29 @@ components:
               * `MacOS` - Apple laptops and desktops
               * `Windows` - Windows-based computers
               * `Linux` - Linux-based computers
-        client_os_version:
+        clientOsVersion:
           type: string
           description: Client's OS version, such as Android 9.1
           example: "9.1"
-        cpu_utilization_percent:
-          type: float
+        cpuUtilizationPercent:
+          type: number
           description: Percent CPU utilization (or if unavailable, the system CPU utilization number, e.g. 1.32)
           example: 34
-        available_memory_bytes:
+        availableMemoryBytes:
           type: integer
           description: The amount of available system memory in bytes
           example: 340243234
-        local_timestamp:
+        localTimestamp:
           type: string
           format: date-time
           description: Client's local date-time, as defined by  RFC 3339, section 5.6
           example: "2017-07-21T17:32:28Z"
-        ip4_address:
+        ip4Address:
           type: string
           format: ipv4
           description: User's IPv4 address on the network device that's connected to the VPN
           example: "91.207.175.41"
-        ip6_address:
+        ip6Address:
           type: string
           format: ipv6
           description: User's IPv46 address on the network device that's connected to the VPN
@@ -361,45 +361,44 @@ components:
           description: A human-readable explanation of the error message
           example:
             cjdns route failed unexpectedly
-        previous_android_log:
+        previousAndroidLog:
           type: string
           description: (stack trace or other information useful for debugging)
           example: >
             1588074618 INFO RandomSeed.c:42 Attempting to seed random number generator\n1588074618 INFO RandomSeed.c:50 Trying random seed [/dev/urandom] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [/proc/sys/kernel/random/uuid (Linux)] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [getentropy(2)] Success1588074618 INFO RandomSeed.c:64 Seeding random number generator succeeded with [3] sources\n1588074618 INFO LibuvEntropyProvider.c:59 Taking clock samples every [1000]ms for random generator\n1588074618 DEBUG Core.c:471 Getting pre-configuration from client\n1588074618 DEBUG Pipe.c:268 Pipe [(null)] established connection\n1588074618 DEBUG Core.c:474 Finished getting pre-configuration from client\n1588074618 DEBUG UDPAddrIface.c:289 Binding to address [127.0.0.1:11234]\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [127.0.0.1:11234]\n1588074618 INFO cjdroute2.c:736 Cjdns i386 linux +seccomp\n1588074618 INFO cjdroute2.c:740 Checking for running instance...\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:38820]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 DEBUG Pipe.c:153 Buffering a message\n1588074618 DEBUG cjdroute2.c:815 Sent [144] bytes to core\n1588074618 DEBUG Pipe.c:268 Pipe [/data/data/co.anode.anodevpn/files/cjdroute.sock] established connection\n1588074618 DEBUG Pipe.c:290 Sending buffered message\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:59077]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 INFO Configurator.c:135 Checking authorized password 0.\n1588074618 INFO Configurator.c:159 Adding authorized password \#[0] for user [default-login].\n1588074618 INFO Configurator.c:197 Setting beacon mode UDPInterface to [2].\n1588074618 INFO Configurator.c:465 Setting up all ETHInterfaces...\n1588074618 WARN Configurator.c:111 Got error [Failed to configure tunnel [TUNInterface_linux.c:65 open(\"\\/dev\\/tun\") [Permission denied]]] calling [Core_initTunnel], ignoring.\n1588074618 DEBUG Configurator.c:638 Security_noforks()\n1588074618 DEBUG Configurator.c:663 Security_setupComplete()\n1588074618 DEBUG Configurator.c:747 Cjdns started in the background\n
-        new_android_log:
+        newAndroidLog:
           type: string
           description: (stack trace or other information useful for debugging)
           example: >
             1588074618 INFO RandomSeed.c:42 Attempting to seed random number generator\n1588074618 INFO RandomSeed.c:50 Trying random seed [/dev/urandom] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [/proc/sys/kernel/random/uuid (Linux)] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [getentropy(2)] Success1588074618 INFO RandomSeed.c:64 Seeding random number generator succeeded with [3] sources\n1588074618 INFO LibuvEntropyProvider.c:59 Taking clock samples every [1000]ms for random generator\n1588074618 DEBUG Core.c:471 Getting pre-configuration from client\n1588074618 DEBUG Pipe.c:268 Pipe [(null)] established connection\n1588074618 DEBUG Core.c:474 Finished getting pre-configuration from client\n1588074618 DEBUG UDPAddrIface.c:289 Binding to address [127.0.0.1:11234]\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [127.0.0.1:11234]\n1588074618 INFO cjdroute2.c:736 Cjdns i386 linux +seccomp\n1588074618 INFO cjdroute2.c:740 Checking for running instance...\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:38820]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 DEBUG Pipe.c:153 Buffering a message\n1588074618 DEBUG cjdroute2.c:815 Sent [144] bytes to core\n1588074618 DEBUG Pipe.c:268 Pipe [/data/data/co.anode.anodevpn/files/cjdroute.sock] established connection\n1588074618 DEBUG Pipe.c:290 Sending buffered message\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:59077]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 INFO Configurator.c:135 Checking authorized password 0.\n1588074618 INFO Configurator.c:159 Adding authorized password \#[0] for user [default-login].\n1588074618 INFO Configurator.c:197 Setting beacon mode UDPInterface to [2].\n1588074618 INFO Configurator.c:465 Setting up all ETHInterfaces...\n1588074618 WARN Configurator.c:111 Got error [Failed to configure tunnel [TUNInterface_linux.c:65 open(\"\\/dev\\/tun\") [Permission denied]]] calling [Core_initTunnel], ignoring.\n1588074618 DEBUG Configurator.c:638 Security_noforks()\n1588074618 DEBUG Configurator.c:663 Security_setupComplete()\n1588074618 DEBUG Configurator.c:747 Cjdns started in the background\n
-        debugging_messages:
+        debuggingMessages:
           type: string
           description: (stack trace or other information useful for debugging)
           example: >
             1588074618 INFO RandomSeed.c:42 Attempting to seed random number generator\n1588074618 INFO RandomSeed.c:50 Trying random seed [/dev/urandom] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [/proc/sys/kernel/random/uuid (Linux)] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [getentropy(2)] Success1588074618 INFO RandomSeed.c:64 Seeding random number generator succeeded with [3] sources\n1588074618 INFO LibuvEntropyProvider.c:59 Taking clock samples every [1000]ms for random generator\n1588074618 DEBUG Core.c:471 Getting pre-configuration from client\n1588074618 DEBUG Pipe.c:268 Pipe [(null)] established connection\n1588074618 DEBUG Core.c:474 Finished getting pre-configuration from client\n1588074618 DEBUG UDPAddrIface.c:289 Binding to address [127.0.0.1:11234]\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [127.0.0.1:11234]\n1588074618 INFO cjdroute2.c:736 Cjdns i386 linux +seccomp\n1588074618 INFO cjdroute2.c:740 Checking for running instance...\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:38820]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 DEBUG Pipe.c:153 Buffering a message\n1588074618 DEBUG cjdroute2.c:815 Sent [144] bytes to core\n1588074618 DEBUG Pipe.c:268 Pipe [/data/data/co.anode.anodevpn/files/cjdroute.sock] established connection\n1588074618 DEBUG Pipe.c:290 Sending buffered message\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:59077]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 INFO Configurator.c:135 Checking authorized password 0.\n1588074618 INFO Configurator.c:159 Adding authorized password \#[0] for user [default-login].\n1588074618 INFO Configurator.c:197 Setting beacon mode UDPInterface to [2].\n1588074618 INFO Configurator.c:465 Setting up all ETHInterfaces...\n1588074618 WARN Configurator.c:111 Got error [Failed to configure tunnel [TUNInterface_linux.c:65 open(\"\\/dev\\/tun\") [Permission denied]]] calling [Core_initTunnel], ignoring.\n1588074618 DEBUG Configurator.c:638 Security_noforks()\n1588074618 DEBUG Configurator.c:663 Security_setupComplete()\n1588074618 DEBUG Configurator.c:747 Cjdns started in the background\n
-          
       xml:
         name: Error
     Client Software Version:
       type: object
       properties:
-        major_number:
+        majorNumber:
           type: int
           description: Major version number
           example: 0
-        minor_number:
+        minorNumber:
           type: int
           description: Minor version number
           example: 1
-        revision_number:
+        revisionNumber:
           type: string
           nullable: true
           description: Revision Number
           example: 11a
-        client_software_version:
+        clientSoftwareVersion:
           type: string
           description: VPN client software version
           example: android-anode-0.9.11a
-        client_cpu_architecture:
+        clientCpuArchitecture:
           type: string
           example: Android
           enum:
@@ -413,17 +412,17 @@ components:
               * `aarch64`
               * `armv7a`
               * `X86_64`
-        binary_download_url:
+        binaryDownloadUrl:
           type: string
           format: uri
           description: URL of the binary for download
           example: https://anode.co/downloads/android-anode-0.9.11a.apk
-        certificate_url:
+        certificateUrl:
           type: string
           format: uri
           description: URL of the binary for download
           example: https://anode.co/downloads/certificates/android-anode-0.9.11a.pem
-        release_datetime:
+        releaseDatetime:
           type: string
           nullable: true
           format: date-time
@@ -434,33 +433,33 @@ components:
     Client Software Version Request Body:
       type: object
       properties:
-        client_os:
+        clientOs:
           type: string
           description: Client OS name
           example: android
-        major_number:
+        majorNumber:
           type: int
           description: Major version number
           example: 0
-        minor_number:
+        minorNumber:
           type: int
           description: Minor version number
           example: 1
-        revision_number:
+        revisionNumber:
           type: string
           nullable: true
           description: Revision Number
           example: 11a
-        client_software_version:
+        clientSoftwareVersion:
           type: string
           description: VPN client software version
           example: android-anode-0.9.11a
-        binary_download_url:
+        binaryDownloadUrl:
           type: string
           format: uri
           description: URL of the binary for download
           example: https://anode.co/downloads/android-anode-0.9.11a.apk
-        certificate_url:
+        certificateUrl:
           type: string
           format: uri
           description: URL of the binary for download
@@ -474,11 +473,11 @@ components:
           type: string
           description: Descriptive name of the server
           example: Kenny G
-        public_key:
+        publicKey:
           type: string
           description: cjdns public key
           example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
-        bandwidth_bps:
+        bandwidthBps:
           type: integer
           description: Approximate maximum bandwidth in bps
           example: 10485760
@@ -486,23 +485,23 @@ components:
           type: string
           description: The state or province where the VPN exit node resides
           example: 'California'
-        country_code:
+        countryCode:
           type: string
           description: The 2-letter ISO3166 country code representing the country where the VPN exit node resides
           example: 'US'
         network:
           type: object
           properties:
-            uses_nat:
+            usesNat:
               type: boolean
               description: true if the network uses NAT
               example: true
-            per_client_allocation_size:
+            perClientAllocationSize:
               type: string
               nullable: true
               description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
               example: "/0"
-            nat_exit_ranges:
+            natExitRanges:
               type: array
               items:
                 type: object
@@ -525,7 +524,7 @@ components:
                         - ipv6
                     description: High end of exit IP range range
                     example: "24.232.89.32"
-            client_allocation_ranges:
+            clientAllocationRanges:
               type: array
               items:
                 type: object
@@ -546,17 +545,17 @@ components:
                     description: High end of IP range. Can be IPv4 or IPv6
                     example: "10.0.0.29"
           description: VPN client software version
-        peering_lines:
+        peeringLines:
           type: array
           items:
             schema:
               $ref: '#/components/schemas/cjdns%20Peering%20Line'
-        online_since_datetime:
+        onlineSinceDatetime:
           type: string
           format: date-time
           description: date-time of first appearance, at server time, as defined by  RFC 3339, section 5.6
           example: "2017-07-21T17:32:28Z"
-        last_seen_datetime:
+        lastSeenDatetime:
           type: string
           format: date-time
           description: date-time of most recent appearance, at server time, as defined by  RFC 3339, section 5.6
@@ -581,7 +580,7 @@ components:
     VPN Client Connection Request:
       type: object
       properties:
-        public_Key:
+        publicKey:
           type: string
           description: Client cjdns public key
           example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
