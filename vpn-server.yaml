@@ -248,7 +248,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Password%20Reset%20Accepted%20Response'
+                $ref: '#/components/schemas/Password%20Reset%20Status%20Response'
         '404':
           description: Bad Request. The password reset request has timed out or does not exist
   /vpn/client/version/{clientOs}/:
