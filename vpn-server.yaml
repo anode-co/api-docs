@@ -5,15 +5,20 @@ info:
   termsOfService: 'http://anode.co/terms/'
   contact:
     email: info@anode.co
-  version: "0.2"
+  version: "0.3"
 externalDocs:
   description: Find out more about Anode
   url: 'http://anode.co'
 servers:
-  - url: 'https://api.anode.co/api/0.2/'
+  - url: 'https://api.anode.co/api/0.3/'
 tags:
   - name: Events
     description: 'Client-side loggable events'
+    externalDocs:
+      description: Find out more
+      url: 'http://api.anode.co'
+  - name: Account Management
+    description: Create accounts, change passwords, and other account management features
     externalDocs:
       description: Find out more
       url: 'http://api.anode.co'
@@ -167,6 +172,85 @@ paths:
       security:
         - ApiKey: 
             - 'write:vpnConnect'
+  /vpn/client/accounts/:
+    post:
+      tags:
+        - Account Management
+      summary: Register a new client account
+      description: When a new email address is submitted, the email address is registered with the system and a unique token is generated for that email. This token must be kept secret and is used for operations related to account management.
+      operationId: registerNewClient
+      requestBody:
+        description: 'Email or other account registration information'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account%20Registration%20Inputs'
+      responses:
+        '201':
+          description: Created. New account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account%20Challenge%20Secret%20Token'
+  /vpn/client/accounts/{email}/password/:
+    post:
+      tags:
+        - Account Management
+      summary: Request to change the password of an existing client account. 
+      description: The server will send an email containing a confirmation link if the email address is registered on the system. The API will respond with an endpoint URL which responds with information regarding the state of the confirmation.
+      operationId: changePassword
+      parameters:
+        - in: path
+          name: email
+          schema:
+            type: string
+            example: jon@example.com
+          description: The user's email address
+          required: true
+      requestBody:
+        description: 'Email or other account registration information'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account%20Challenge%20Secret%20Token'
+      responses:
+        '202':
+          description: Accepted. The password reset process has been initialized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Password%20Reset%20Accepted%20Response'
+        '401':
+          description: The provided email address and/or secret token was invalid
+  /vpn/client/accounts/{email}/password/{passwordResetToken}/:
+    get:
+      tags:
+        - Account Management
+      summary: Request to change the password of an existing client account
+      description: After a user has issued a password reset request, this endpoint responds with status information about whether or not a confirmation code has been applied by the user.
+      operationId: checkChangePasswordRequestStatus
+      parameters:
+        - in: path
+          name: email
+          schema:
+            $ref: '#/components/schemas/Account%20Email'
+          required: true
+        - in: path
+          name: passwordResetToken
+          schema:
+            $ref: '#/components/schemas/Password%20Reset%20Token'
+          required: true
+      responses:
+        '202':
+          description: Password reset confirmation still pending
+        '200':
+          description: Ok. The password reset request has been verified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Password%20Reset%20Accepted%20Response'
+        '404':
+          description: Bad Request. The password reset request has timed out or does not exist
   /vpn/client/version/{clientOs}/:
     get:
       tags:
@@ -586,6 +670,59 @@ components:
           example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
       xml:
         name: Client Software Version
+    Account Registration Inputs:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: A valid email address that can be uniquely identified on the system
+          example: jon@example.com
+    Account Challenge Secret Token:
+      type: object
+      properties:
+        secretToken:
+          $ref: '#/components/schemas/SecretToken'
+    Password Reset Accepted Response:
+      type: object
+      properties:
+        passwordResetToken:
+          $ref: '#/components/schemas/Password%20Reset%20Token'
+        passwordResetStatusUrl:
+          type: string
+          description: The URL to check on the status of this password reset operation. It includes the user's email address and the 
+          example: /api/0.3/vpn/accounts/jon%40example.com/password/skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k/
+    Password Reset Status Response:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'pending'
+          enum:
+            - pending
+            - success
+            - error
+          description: >
+            Status:
+              * `pending` - Waiting for password reset flow to complete
+              * `success` - Password reset flow completed
+              * `error` - Error completing password reset flow
+        secretToken:
+          $ref: '#/components/schemas/SecretToken'
+    SecretToken:
+      type: string
+      description: A randomly-generated secret token that can be used as a future password for API access by a client.
+      example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
+    Account Email:
+      type: string
+      format: email
+      description: Email address used to uniquely identify account on the system.
+      example: jon@example.com
+    Password Reset Token:
+      type: string
+      description: A temporary session token that can be used to check the status of a password reset operation.
+      example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
+    
   securitySchemes:
     ApiKey:
       type: apiKey
