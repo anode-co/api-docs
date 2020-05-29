@@ -333,6 +333,31 @@ paths:
       security:
         - ApiKey:
           - 'write:version'
+  /vpn/clients/publickeys/:
+    post:
+      tags:
+        - Clients
+      summary: Register a new public key
+      operationId: createNewPublicKey
+      requestBody:
+        description: Returns a public key ID for reference on the server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicKeyInput'
+        required: true
+      responses:
+        '201':
+          description: Created. A new version has been saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicKeyOutput'
+        '405':
+          description: Invalid input
+      security:
+        - ApiKey:
+          - 'write:version'
   /vpn/client/event/:
     post:
       tags:
@@ -723,10 +748,31 @@ components:
       type: string
       description: A temporary session token that can be used to check the status of a password reset operation.
       example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
-    
+    PublicKeyInput:
+      type: object
+      properties:
+        publicKey:
+          type: string
+          example: '------BEGIN-PUBLIC-KEY----\nnaetuhasntuhasnteh\n------END-PUBLIC-KEY-----'
+          description: A public key
+        algorithm:
+          type: string
+          example: 'rsa-sha256'
+          description: an ecryptino algorithm
+    PublicKeyOutput:
+      type: object
+      properties:
+        publicKeyId:
+          type: string
+          example: 'rsa-sha256-nnaetuhasnt-1'
+          description: A unique identifier for a public key.
   securitySchemes:
     ApiKey:
       type: apiKey
       name: X-API-KEY
       in: header
+    Cavage:
+      type: cavage
+      name: Authorization
+      in:  header
 
