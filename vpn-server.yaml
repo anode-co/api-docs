@@ -172,7 +172,7 @@ paths:
       security:
         - ApiKey: 
             - 'write:vpnConnect'
-  /vpn/client/accounts/:
+  /vpn/accounts/:
     post:
       tags:
         - Account Management
@@ -192,7 +192,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account%20Challenge%20Secret%20Token'
-  /vpn/client/accounts/{email}/password/:
+  /vpn/accounts/{email}/password/:
     post:
       tags:
         - Account Management
@@ -222,7 +222,7 @@ paths:
                 $ref: '#/components/schemas/Password%20Reset%20Accepted%20Response'
         '401':
           description: The provided email address and/or secret token was invalid
-  /vpn/client/accounts/{email}/password/{passwordResetToken}/:
+  /vpn/accounts/{email}/password/{passwordResetToken}/:
     get:
       tags:
         - Account Management
@@ -573,41 +573,43 @@ components:
           type: string
           description: The 2-letter ISO3166 country code representing the country where the VPN exit node resides
           example: 'US'
-        network:
-          type: object
-          properties:
-            usesNat:
-              type: boolean
-              description: true if the network uses NAT
-              example: true
-            perClientAllocationSize:
-              type: string
-              nullable: true
-              description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
-              example: "/0"
-            natExitRanges:
-              type: array
-              items:
-                type: object
-                nullable: true
-                description: IP address range 
-                properties:
-                  min:
-                    type: string
-                    format: 
-                      anyOf:
-                        - ipv4
-                        - ipv6
-                    description: Low end of exit IP range range
-                    example: "24.232.89.32"
-                  max:
-                    type: string
-                    format:
-                      anyOf:
-                        - ipv4
-                        - ipv6
-                    description: High end of exit IP range range
-                    example: "24.232.89.32"
+        networkSettings:
+          type: array
+            items:
+              type: object
+              properties:
+                usesNat:
+                  type: boolean
+                  description: true if the network uses NAT
+                  example: true
+                perClientAllocationSize:
+                  type: string
+                  nullable: true
+                  description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
+                  example: "/0"
+                natExitRanges:
+                  type: array
+                  items:
+                    type: object
+                    nullable: true
+                    description: IP address range 
+                    properties:
+                      min:
+                        type: string
+                        format: 
+                          anyOf:
+                            - ipv4
+                            - ipv6
+                        description: Low end of exit IP range range
+                        example: "24.232.89.32"
+                      max:
+                        type: string
+                        format:
+                          anyOf:
+                            - ipv4
+                            - ipv6
+                        description: High end of exit IP range range
+                        example: "24.232.89.32"
             clientAllocationRanges:
               type: array
               items:
