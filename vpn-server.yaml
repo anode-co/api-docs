@@ -64,7 +64,7 @@ paths:
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/VPN%20Server'
+                      $ref: '#/components/schemas/VPNServer'
       security:
         - ApiKey: 
             - 'read:vpnList'
@@ -78,7 +78,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VPN%20Server'
+              $ref: '#/components/schemas/VPNServer'
         required: true
       
       responses:
@@ -111,7 +111,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VPN%20Server'  
+                $ref: '#/components/schemas/VPNServer'  
       security:
         - ApiKey: 
             - 'read:vpnList'
@@ -184,14 +184,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Account%20Registration%20Inputs'
+              $ref: '#/components/schemas/AccountRegistrationInputs'
       responses:
         '201':
           description: Created. New account created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account%20Challenge%20Secret%20Token'
+                $ref: '#/components/schemas/AccountChallengeSecretToken'
   /vpn/accounts/{email}/password/:
     post:
       tags:
@@ -212,14 +212,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Account%20Challenge%20Secret%20Token'
+              $ref: '#/components/schemas/AccountChallengeSecretToken'
       responses:
         '202':
           description: Accepted. The password reset process has been initialized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Password%20Reset%20Accepted%20Response'
+                $ref: '#/components/schemas/PasswordResetAcceptedResponse'
         '401':
           description: The provided email address and/or secret token was invalid
   /vpn/accounts/{email}/password/{passwordResetToken}/:
@@ -233,12 +233,12 @@ paths:
         - in: path
           name: email
           schema:
-            $ref: '#/components/schemas/Account%20Email'
+            $ref: '#/components/schemas/AccountEmail'
           required: true
         - in: path
           name: passwordResetToken
           schema:
-            $ref: '#/components/schemas/Password%20Reset%20Token'
+            $ref: '#/components/schemas/PasswordResetToken'
           required: true
       responses:
         '202':
@@ -248,7 +248,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Password%20Reset%20Status%20Response'
+                $ref: '#/components/schemas/PasswordResetStatusResponse'
         '404':
           description: Bad Request. The password reset request has timed out or does not exist
   /vpn/client/version/{clientOs}/:
@@ -283,7 +283,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Client%20Software%20Version'
+                $ref: '#/components/schemas/ClientSoftwareVersion'
         '405':
           description: Invalid input
         '404':
@@ -321,7 +321,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Client%20Software%20Version%20Request%20Body'
+              $ref: '#/components/schemas/ClientSoftwareVersionRequestBody'
         required: true
       responses:
         '201':
@@ -462,15 +462,15 @@ components:
             1588074618 INFO RandomSeed.c:42 Attempting to seed random number generator\n1588074618 INFO RandomSeed.c:50 Trying random seed [/dev/urandom] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [/proc/sys/kernel/random/uuid (Linux)] Success\n1588074618 INFO RandomSeed.c:50 Trying random seed [getentropy(2)] Success1588074618 INFO RandomSeed.c:64 Seeding random number generator succeeded with [3] sources\n1588074618 INFO LibuvEntropyProvider.c:59 Taking clock samples every [1000]ms for random generator\n1588074618 DEBUG Core.c:471 Getting pre-configuration from client\n1588074618 DEBUG Pipe.c:268 Pipe [(null)] established connection\n1588074618 DEBUG Core.c:474 Finished getting pre-configuration from client\n1588074618 DEBUG UDPAddrIface.c:289 Binding to address [127.0.0.1:11234]\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [127.0.0.1:11234]\n1588074618 INFO cjdroute2.c:736 Cjdns i386 linux +seccomp\n1588074618 INFO cjdroute2.c:740 Checking for running instance...\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:38820]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 DEBUG Pipe.c:153 Buffering a message\n1588074618 DEBUG cjdroute2.c:815 Sent [144] bytes to core\n1588074618 DEBUG Pipe.c:268 Pipe [/data/data/co.anode.anodevpn/files/cjdroute.sock] established connection\n1588074618 DEBUG Pipe.c:290 Sending buffered message\n1588074618 DEBUG UDPAddrIface.c:328 Bound to address [0.0.0.0:59077]\n1588074618 DEBUG AdminClient.c:333 Connecting to [127.0.0.1:11234]\n1588074618 INFO Configurator.c:135 Checking authorized password 0.\n1588074618 INFO Configurator.c:159 Adding authorized password \#[0] for user [default-login].\n1588074618 INFO Configurator.c:197 Setting beacon mode UDPInterface to [2].\n1588074618 INFO Configurator.c:465 Setting up all ETHInterfaces...\n1588074618 WARN Configurator.c:111 Got error [Failed to configure tunnel [TUNInterface_linux.c:65 open(\"\\/dev\\/tun\") [Permission denied]]] calling [Core_initTunnel], ignoring.\n1588074618 DEBUG Configurator.c:638 Security_noforks()\n1588074618 DEBUG Configurator.c:663 Security_setupComplete()\n1588074618 DEBUG Configurator.c:747 Cjdns started in the background\n
       xml:
         name: Error
-    Client Software Version:
+    ClientSoftwareVersion:
       type: object
       properties:
         majorNumber:
-          type: int
+          type: integer
           description: Major version number
           example: 0
         minorNumber:
-          type: int
+          type: integer
           description: Minor version number
           example: 1
         revisionNumber:
@@ -514,7 +514,7 @@ components:
           example: "2017-07-21T17:32:28Z"
       xml:
         name: Client Software Version
-    Client Software Version Request Body:
+    ClientSoftwareVersionRequestBody:
       type: object
       properties:
         clientOs:
@@ -522,11 +522,11 @@ components:
           description: Client OS name
           example: android
         majorNumber:
-          type: int
+          type: integer
           description: Major version number
           example: 0
         minorNumber:
-          type: int
+          type: integer
           description: Minor version number
           example: 1
         revisionNumber:
@@ -550,7 +550,7 @@ components:
           example: https://anode.co/downloads/certificates/android-anode-0.9.11a.pem
       xml:
         name: Client Software Version Request Body
-    VPN Server:
+    VPNServer:
       type: object
       properties:
         name:
@@ -575,67 +575,66 @@ components:
           example: 'US'
         networkSettings:
           type: array
-            items:
-              type: object
-              properties:
-                usesNat:
-                  type: boolean
-                  description: true if the network uses NAT
-                  example: true
-                perClientAllocationSize:
-                  type: string
+          items:
+            type: object
+            properties:
+              usesNat:
+                type: boolean
+                description: true if the network uses NAT
+                example: true
+              perClientAllocationSize:
+                type: string
+                nullable: true
+                description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
+                example: "/0"
+              natExitRanges:
+                type: array
+                items:
+                  type: object
                   nullable: true
-                  description: Per client network allocation size (relevant for workplace VPNs). Defaults to '/0'
-                  example: "/0"
-                natExitRanges:
-                  type: array
-                  items:
-                    type: object
-                    nullable: true
-                    description: IP address range 
-                    properties:
-                      min:
-                        type: string
-                        format: 
-                          anyOf:
-                            - ipv4
-                            - ipv6
-                        description: Low end of exit IP range range
-                        example: "24.232.89.32"
-                      max:
-                        type: string
-                        format:
-                          anyOf:
-                            - ipv4
-                            - ipv6
-                        description: High end of exit IP range range
-                        example: "24.232.89.32"
-            clientAllocationRanges:
-              type: array
-              items:
-                type: object
-                description: IP address range available for allocation
-                properties:
-                  min:
-                    type:
+                  description: IP address range 
+                  properties:
+                    min:
+                      type: string
+                      format: string
                       anyOf:
-                        - ipv4
-                        - ipv6
-                    description: Low end of IP range. Can be IPv4 or IPv6
-                    example: "10.0.0.1"
-                  max:
-                    type:
+                        - format: ipv4
+                        - format: ipv6
+                      description: Low end of exit IP range range
+                      example: "24.232.89.32"
+                    max:
+                      type: string
+                      format: string
                       anyOf:
-                        - ipv4
-                        - ipv6
-                    description: High end of IP range. Can be IPv4 or IPv6
-                    example: "10.0.0.29"
+                        - format: ipv4
+                        - format: ipv6
+                      description: High end of exit IP range range
+                      example: "24.232.89.32"
+              clientAllocationRanges:
+                type: array
+                items:
+                  type: object
+                  description: IP address range available for allocation
+                  properties:
+                    min:
+                      type: string
+                      anyOf:
+                        - format: ipv4
+                        - format: ipv6
+                      description: Low end of IP range. Can be IPv4 or IPv6
+                      example: "10.0.0.1"
+                    max:
+                      type: string
+                      anyOf:
+                        - format: ipv4
+                        - format: ipv6
+                      description: High end of IP range. Can be IPv4 or IPv6
+                      example: "10.0.0.29"
           description: VPN client software version
         peeringLines:
           type: array
           items:
-            schema:
-              $ref: '#/components/schemas/cjdns%20Peering%20Line'
+            $ref: '#/components/schemas/cjdnsPeeringLine'
         onlineSinceDatetime:
           type: string
           format: date-time
@@ -648,7 +647,7 @@ components:
           example: "2017-07-21T17:32:28Z"
       xml:
         name: Client Software Version
-    cjdns Peering Line:
+    cjdnsPeeringLine:
       type: object
       properties:
         name:
@@ -663,7 +662,7 @@ components:
           type: string
           description: password authorized on cjdns server
           example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
-    VPN Client Connection Request:
+    VPNClientConnectionRequest:
       type: object
       properties:
         publicKey:
@@ -672,7 +671,7 @@ components:
           example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
       xml:
         name: Client Software Version
-    Account Registration Inputs:
+    AccountRegistrationInputs:
       type: object
       properties:
         email:
@@ -680,21 +679,21 @@ components:
           format: email
           description: A valid email address that can be uniquely identified on the system
           example: jon@example.com
-    Account Challenge Secret Token:
+    AccountChallengeSecretToken:
       type: object
       properties:
         secretToken:
           $ref: '#/components/schemas/SecretToken'
-    Password Reset Accepted Response:
+    PasswordResetAcceptedResponse:
       type: object
       properties:
         passwordResetToken:
-          $ref: '#/components/schemas/Password%20Reset%20Token'
+          $ref: '#/components/schemas/PasswordResetToken'
         passwordResetStatusUrl:
           type: string
           description: The URL to check on the status of this password reset operation. It includes the user's email address and the 
           example: /api/0.3/vpn/accounts/jon%40example.com/password/skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k/
-    Password Reset Status Response:
+    PasswordResetStatusResponse:
       type: object
       properties:
         status:
@@ -715,12 +714,12 @@ components:
       type: string
       description: A randomly-generated secret token that can be used as a future password for API access by a client.
       example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
-    Account Email:
+    AccountEmail:
       type: string
       format: email
       description: Email address used to uniquely identify account on the system.
       example: jon@example.com
-    Password Reset Token:
+    PasswordResetToken:
       type: string
       description: A temporary session token that can be used to check the status of a password reset operation.
       example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
