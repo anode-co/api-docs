@@ -192,6 +192,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountChallengeSecretToken'
+  /vpn/accounts/{email}/confirmstatus/:
+    get:
+      tags:
+        - Account Management
+      summary: Register a new client account
+      description: When a user creates a new account, they receive an email with a confirmation link. When the user clicks the confirmation link in their email, the status reported at this endpoint changes.
+      operationId: checkAccountRegistrationStatus
+      parameters:
+        - in: path
+          name: email
+          schema:
+            $ref: '#/components/schemas/AccountEmail'
+          description: The account holder's email
+          required: true
+      responses:
+        '202':
+          description: Accepted. Account confirmation is still pending
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountConfirmationStatusResponse'
+        '200':
+          description: Ok. The account has been verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountConfirmationStatusResponse'
+        '404':
+          description: Not Found. The account does not exist
   /vpn/accounts/{email}/password/:
     post:
       tags:
@@ -203,9 +232,8 @@ paths:
         - in: path
           name: email
           schema:
-            type: string
-            example: jon@example.com
-          description: The user's email address
+            $ref: '#/components/schemas/AccountEmail'
+          description: The account holder's email
           required: true
       requestBody:
         description: 'Email or other account registration information'
@@ -735,6 +763,21 @@ components:
               * `error` - Error completing password reset flow
         secretToken:
           $ref: '#/components/schemas/SecretToken'
+    AccountConfirmationStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'pending'
+          enum:
+            - pending
+            - success
+            - error
+          description: >
+            Status:
+              * `pending` - Waiting for account confirmation flow to complete
+              * `success` - Account confirmation flow completed
+              * `error` - Error completing account confirmation flow
     SecretToken:
       type: string
       description: A randomly-generated secret token that can be used as a future password for API access by a client.
@@ -758,7 +801,7 @@ components:
         algorithm:
           type: string
           example: 'rsa-sha256'
-          description: an ecryptino algorithm
+          description: an encryption algorithm
     PublicKeyOutput:
       type: object
       properties:
