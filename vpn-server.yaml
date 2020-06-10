@@ -266,7 +266,7 @@ paths:
           description: The account holder's email
           required: true
       responses:
-        '202':
+        '201':
           description: Accepted. The password reset process has been initialized
           content:
             application/json:
@@ -328,6 +328,24 @@ paths:
               * `macos` - Apple laptops and desktops
               * `windows` - Windows-based computers
               * `linux` - Linux-based computers
+          required: true
+      parameters:
+        - in: path
+          name: clientCpuArchitecture
+          schema:
+            type: string
+            example: i686
+            enum:
+              - i686
+              - aarch64
+              - armv7a
+              - X86_64
+          description: >
+            Client OS:
+              * `i686` - i686 x86 CPUs
+              * `aarch64` - 64-bit ARMv8 CPUs
+              * `armv7a` - ARMv7a CPUs
+              * `X86_64` - 64-bit x86 CPUs
           required: true
       responses:
         '200':
