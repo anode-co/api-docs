@@ -314,7 +314,7 @@ paths:
           name: clientOs
           schema:
             type: string
-            example: Android
+            example: android
             enum:
               - android
               - ios
