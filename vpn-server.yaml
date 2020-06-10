@@ -742,8 +742,6 @@ components:
     PasswordResetAcceptedResponse:
       type: object
       properties:
-        passwordResetToken:
-          $ref: '#/components/schemas/PasswordResetToken'
         passwordResetStatusUrl:
           type: string
           description: The URL to check on the status of this password reset operation. It includes the user's email address and the 
