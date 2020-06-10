@@ -17,6 +17,11 @@ tags:
     externalDocs:
       description: Find out more
       url: 'http://api.anode.co'
+  - name: Authorization
+    description: 'Interacting with the authorization system'
+    externalDocs:
+      description: Find out more
+      url: 'http://api.anode.co'
   - name: Account Management
     description: Create accounts, change passwords, and other account management features
     externalDocs:
@@ -33,6 +38,28 @@ tags:
       description: Find out more
       url: 'http://api.anode.co'
 paths:
+  /vpn/clients/publickeys/:
+    post:
+      tags:
+        - Authorization
+      summary: Register a new public key
+      operationId: createNewPublicKey
+      requestBody:
+        description: Returns a public key ID for reference on the server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicKeyInput'
+        required: true
+      responses:
+        '201':
+          description: Created. A new version has been saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicKeyOutput'
+        '400':
+          description: Invalid input
   /vpn/servers/:
     get:
       tags:
@@ -80,7 +107,6 @@ paths:
             schema:
               $ref: '#/components/schemas/VPNServer'
         required: true
-      
       responses:
         '201':
           description: Created. Server registered
@@ -176,7 +202,7 @@ paths:
     post:
       tags:
         - Account Management
-      summary: Register a new client account
+      summary: Check  a new client account
       description: When a new email address is submitted, the email address is registered with the system and a unique token is generated for that email. This token must be kept secret and is used for operations related to account management.
       operationId: registerNewClient
       requestBody:
@@ -191,7 +217,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountChallengeSecretToken'
+                $ref: '#/components/schemas/AccountCreated'
+        '400':
+          description: Invalid Request. The input email is invalid or the email is already confirmed.
   /vpn/accounts/{email}/confirmstatus/:
     get:
       tags:
@@ -212,13 +240,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountConfirmationStatusResponse'
+                $ref: '#/components/schemas/AccountConfirmationStatusResponsePending'
         '200':
           description: Ok. The account has been verified
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountConfirmationStatusResponse'
+                $ref: '#/components/schemas/AccountConfirmationStatusResponseSuccess'
+        '400':
+          description: Invalid Request. Some information provided was not valid
         '404':
           description: Not Found. The account does not exist
   /vpn/accounts/{email}/password/:
@@ -235,12 +265,6 @@ paths:
             $ref: '#/components/schemas/AccountEmail'
           description: The account holder's email
           required: true
-      requestBody:
-        description: 'Email or other account registration information'
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountChallengeSecretToken'
       responses:
         '202':
           description: Accepted. The password reset process has been initialized
@@ -250,7 +274,6 @@ paths:
                 $ref: '#/components/schemas/PasswordResetAcceptedResponse'
         '401':
           description: The provided email address and/or secret token was invalid
-  /vpn/accounts/{email}/password/{passwordResetToken}/:
     get:
       tags:
         - Account Management
@@ -263,22 +286,23 @@ paths:
           schema:
             $ref: '#/components/schemas/AccountEmail'
           required: true
-        - in: path
-          name: passwordResetToken
-          schema:
-            $ref: '#/components/schemas/PasswordResetToken'
-          required: true
       responses:
         '202':
           description: Password reset confirmation still pending
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetStatusResponsePending'
         '200':
           description: Ok. The password reset request has been verified.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PasswordResetStatusResponse'
+                $ref: '#/components/schemas/PasswordResetStatusResponseComplete'
+        '400':
+          description: Invalid Request. Some information provided was not valid
         '404':
-          description: Bad Request. The password reset request has timed out or does not exist
+          description: Not Found. The password reset request has timed out, does not exist, or  has been  completed
   /vpn/client/version/{clientOs}/:
     get:
       tags:
@@ -358,31 +382,6 @@ paths:
           description: Invalid input
         '403':
           description: Forbidden. Access to create a new version is not authorized
-      security:
-        - ApiKey:
-          - 'write:version'
-  /vpn/clients/publickeys/:
-    post:
-      tags:
-        - Clients
-      summary: Register a new public key
-      operationId: createNewPublicKey
-      requestBody:
-        description: Returns a public key ID for reference on the server.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PublicKeyInput'
-        required: true
-      responses:
-        '201':
-          description: Created. A new version has been saved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PublicKeyOutput'
-        '405':
-          description: Invalid input
       security:
         - ApiKey:
           - 'write:version'
@@ -732,11 +731,14 @@ components:
           format: email
           description: A valid email address that can be uniquely identified on the system
           example: jon@example.com
-    AccountChallengeSecretToken:
+    AccountCreated:
       type: object
       properties:
-        secretToken:
-          $ref: '#/components/schemas/SecretToken'
+        accountConfirmationStatusUrl:
+          type: string
+          format: url
+          example: '/api/0.3/vpn/accounts/email@example.com/confirmstatus/'
+          description: The URL to check on the newly  registered email confirmation status
     PasswordResetAcceptedResponse:
       type: object
       properties:
@@ -746,7 +748,7 @@ components:
           type: string
           description: The URL to check on the status of this password reset operation. It includes the user's email address and the 
           example: /api/0.3/vpn/accounts/jon%40example.com/password/skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k/
-    PasswordResetStatusResponse:
+    PasswordResetStatusResponsePending:
       type: object
       properties:
         status:
@@ -754,16 +756,31 @@ components:
           example: 'pending'
           enum:
             - pending
-            - success
-            - error
           description: >
             Status:
               * `pending` - Waiting for password reset flow to complete
-              * `success` - Password reset flow completed
-              * `error` - Error completing password reset flow
-        secretToken:
-          $ref: '#/components/schemas/SecretToken'
-    AccountConfirmationStatusResponse:
+    PasswordResetStatusResponseComplete:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'complete'
+          enum:
+            - complete
+          description: >
+            Status:
+              * `complete` - Password reset flow completed
+        appSecretToken:
+          $ref: '#/components/schemas/AppSecretToken'
+    AccountCreationResponse:
+      type: object
+      properties:
+        accountConfirmationStatusUrl:
+          type: string
+          format: url,
+          example: 'http://vpn.anode.co/vpn/accounts/email@example.com/confirmstatus/'
+          description: The URL to check for the account confirmation status
+    AccountConfirmationStatusResponsePending:
       type: object
       properties:
         status:
@@ -771,17 +788,26 @@ components:
           example: 'pending'
           enum:
             - pending
-            - success
-            - error
           description: >
             Status:
-              * `pending` - Waiting for account confirmation flow to complete
-              * `success` - Account confirmation flow completed
-              * `error` - Error completing account confirmation flow
-    SecretToken:
+              * `pending` - Waiting for account
+    AccountConfirmationStatusResponseSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'complete'
+          enum:
+            - complete
+          description: >
+            Status:
+              * `complete` - Account confirmation flow completed
+        appSecretToken:
+          $ref: '#/components/schemas/AppSecretToken'
+    AppSecretToken:
       type: string
-      description: A randomly-generated secret token that can be used as a future password for API access by a client.
-      example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
+      example: s27YySDEuSVzkYJGXYnAInGQ3O1ZZ4n8KZMws4luTmDRu0xHwwn2792X3MFKY4ZC
+      description: The app secret for an app to encrypt or decrypt their wallet.
     AccountEmail:
       type: string
       format: email
@@ -811,7 +837,8 @@ components:
           description: A unique identifier for a public key.
   securitySchemes:
     ApiKey:
+      description: This system uses cryptographically signed messages using the draft-cavage-http-signatures-10 draft standard for authorization.
       type: apiKey
-      name: X-API-KEY
+      name: Authorization
       in: header
 
