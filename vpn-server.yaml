@@ -744,8 +744,8 @@ components:
       properties:
         passwordResetStatusUrl:
           type: string
-          description: The URL to check on the status of this password reset operation. It includes the user's email address and the 
-          example: /api/0.3/vpn/accounts/jon%40example.com/password/skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k/
+          description: The URL to check on the status of this password reset operation. It includes the user's email address
+          example: /api/0.3/vpn/accounts/jon%40example.com/password/
     PasswordResetStatusResponsePending:
       type: object
       properties:
