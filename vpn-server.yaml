@@ -295,7 +295,7 @@ paths:
           description: Invalid Request. Some information provided was not valid
         '404':
           description: Not Found. The account does not exist
-  /vpn/accounts/{appSecretToken}/password/:
+  /vpn/accounts/{passwordResetToken}/password/:
     post:
       tags:
         - Account Management
@@ -304,10 +304,9 @@ paths:
       operationId: changePassword
       parameters:
         - in: path
-          name: appSecretToken
+          name: passwordResetToken
           schema:
-            $ref: '#/components/schemas/AppSecretToken'
-          description: The app token connected to a registered email
+            $ref: '#/components/schemas/PasswordResetToken'
           required: true
       responses:
         '202':
@@ -326,10 +325,9 @@ paths:
       operationId: checkChangePasswordRequestStatus
       parameters:
         - in: path
-          name: appSecretToken
+          name: passwordResetToken
           schema:
-            $ref: '#/components/schemas/AppSecretToken'
-          description: The app token connected to a registered email
+            $ref: '#/components/schemas/PasswordResetToken'
           required: true
       responses:
         '202':
@@ -783,14 +781,16 @@ components:
           type: string
           format: url
           example: '/api/0.3/vpn/accounts/email@example.com/confirmstatus/'
-          description: The URL to check on the newly  registered email confirmation status
+          description: The URL to check on the newly registered email confirmation status
+        passwordResetToken:
+          $ref: "#/components/schemas/PasswordResetToken"
     PasswordResetAcceptedResponse:
       type: object
       properties:
         passwordResetStatusUrl:
           type: string
           description: The URL to check on the status of this password reset operation. It includes the user's email address
-          example: /api/0.3/vpn/accounts/jon%40example.com/password/
+          example: /api/0.3/vpn/accounts/<passwordResetToken>/password/
     PasswordResetStatusResponsePending:
       type: object
       properties:
@@ -813,8 +813,8 @@ components:
           description: >
             Status:
               * `complete` - Password reset flow completed
-        appSecretToken:
-          $ref: '#/components/schemas/AppSecretToken'
+        backupWalletPassword:
+          $ref: '#/components/schemas/BackupWalletPassword'
     AccountCreationResponse:
       type: object
       properties:
@@ -823,6 +823,8 @@ components:
           format: url,
           example: 'http://vpn.anode.co/vpn/accounts/email@example.com/confirmstatus/'
           description: The URL to check for the account confirmation status
+        passwordResetToken:
+          $ref: "#/components/schemas/PasswordResetToken"
     AccountConfirmationStatusResponsePending:
       type: object
       properties:
@@ -845,8 +847,8 @@ components:
           description: >
             Status:
               * `complete` - Account confirmation flow completed
-        appSecretToken:
-          $ref: '#/components/schemas/AppSecretToken'
+        backupWalletPassword:
+          $ref: '#/components/schemas/BackupWalletPassword'
     VpnAuthorizationResponseSuccess:
       type: object
       properties:
@@ -898,7 +900,7 @@ components:
           type: string
           example: 'InvalidResponse.'
           description: An informative message about the status of the response
-    AppSecretToken:
+    BackupWalletPassword:
       type: string
       example: s27YySDEuSVzkYJGXYnAInGQ3O1ZZ4n8KZMws4luTmDRu0xHwwn2792X3MFKY4ZC
       description: The app secret for an app to encrypt or decrypt their wallet.
@@ -909,7 +911,7 @@ components:
       example: jon@example.com
     PasswordResetToken:
       type: string
-      description: A temporary session token that can be used to check the status of a password reset operation.
+      description: A token associated with the user's account that can be used to initiate a password recovery process.
       example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
     PublicKeyInput:
       type: object
