@@ -17,6 +17,11 @@ tags:
     externalDocs:
       description: Find out more
       url: 'http://api.anode.co'
+  - name: Coordinator
+    description: 'Functionsrelated to this server'
+    externalDocs:
+      description: Find out more
+      url: 'http://api.anode.co'
   - name: Authorization
     description: 'Interacting with the authorization system'
     externalDocs:
@@ -38,6 +43,19 @@ tags:
       description: Find out more
       url: 'http://api.anode.co'
 paths:
+  /coordinator/publickey/:
+    post:
+      tags:
+        - Coordinator
+      summary: Get this server's public  key
+      operationId: getCoordinatorPublicKey
+      responses:
+        '200':
+          description: OK. 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanonicalPublicKeyOutput'
   /vpn/clients/publickeys/:
     post:
       tags:
@@ -165,22 +183,15 @@ paths:
         - ApiKey: 
             - 'delete:vpnServer'
           
-  /vpn/servers/{serverPublicKey}/connect/{clientPublicKey}/:
+  /vpn/servers/{serverPublicKey}/authorize/:
     get:
       tags:
         - Servers
-      summary: Client requests a connection to a VPN server
+      summary: Client requests a connection to a VPN server. The client's signature will reveal a public key, which is the one authorized by the VPN server.
       operationId: checkVpnServerConnectionStatus
       parameters:
         - in: path
           name: serverPublicKey
-          schema:
-            type: string
-            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
-          description: VPN Server cjdns public key
-          required: true
-        - in: path
-          name: clientPublicKey
           schema:
             type: string
             example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
@@ -192,19 +203,19 @@ paths:
           content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/VpnAuthorizationResponseSuccess'
+                  $ref: '#/components/schemas/VpnServerStatusResponse'
         '201':
           description: Ok. The client has been authorized to connect to the VPN
           content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/VpnAuthorizationResponseSuccess'
+                  $ref: '#/components/schemas/VpnServerStatusResponse'
         '400':
           description: Bad Request. Some information provided was invalid
           content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/VpnAuthorizationResponseInvalidRequest'
+                  $ref: '#/components/schemas/VpnServerStatusResponse'
         '401':
           description: Unauthorized. The connection or authorization was rejected
         '404':
@@ -215,6 +226,19 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/VpnAuthorizationResponseTimeout'
+
+        '500':
+          description: Server Error. Response for all other errors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VpnServerStatusResponse'
+        '503':
+          description: Service Unavailable. No more IP addresses for allocation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VpnServerStatusResponse'
       security:
         - ApiKey: 
             - 'write:vpnConnect'
@@ -905,6 +929,40 @@ components:
           type: string
           example: 'rsa-sha256-nnaetuhasnt-1'
           description: A unique identifier for a public key.
+    CanonicalPublicKeyOutput:
+      type: object
+      properties:
+        publicKey:
+          type: string
+          example: 'skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k'
+          description: A cjdns public key
+    VpnServerStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'success'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Method completed successfully
+              * `error` - Error processing request
+        message:
+          type: string
+          example: 'not found'
+          description: Human readable text describing the nature of the status
+        expiresAt:
+          type: string
+          format:  integer
+          example: '1591963516'
+          description: Unix timestamp representing the date and time the authorization and allocated IP addresses expires
+        date:
+          type: string
+          format: integer
+          example: '1591963441'
+          description: Unix-timestamp of response
   securitySchemes:
     ApiKey:
       description: This system uses cryptographically signed messages using the draft-cavage-http-signatures-10 draft standard for authorization.
