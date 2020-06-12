@@ -958,11 +958,6 @@ components:
           format:  integer
           example: '1591963516'
           description: Unix timestamp representing the date and time the authorization and allocated IP addresses expires
-        date:
-          type: string
-          format: integer
-          example: '1591963441'
-          description: Unix-timestamp of response
   securitySchemes:
     ApiKey:
       description: This system uses cryptographically signed messages using the draft-cavage-http-signatures-10 draft standard for authorization.
