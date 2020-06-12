@@ -188,13 +188,33 @@ paths:
           required: true
       responses:
         '200':
-          description: Ok. Successful operation, client authorized to connect to VPN
+          description: Ok. The client is already authorized to connect to the VPN
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VpnAuthorizationResponseSuccess'
+        '201':
+          description: Ok. The client has been authorized to connect to the VPN
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VpnAuthorizationResponseSuccess'
+        '400':
+          description: Bad Request. Some information provided was invalid
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VpnAuthorizationResponseInvalidRequest'
         '401':
           description: Unauthorized. The connection or authorization was rejected
         '404':
-          description: Not Found. This client is not connected
-        '407':
-          description: Proxy Authentication Required. Waiting for server authorization or initial connection
+          description: Not Found. This VPN server is not registered
+        '408':
+          description: Timout. The VPN server didn't respond.
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VpnAuthorizationResponseTimeout'
       security:
         - ApiKey: 
             - 'write:vpnConnect'
@@ -802,6 +822,57 @@ components:
               * `complete` - Account confirmation flow completed
         appSecretToken:
           $ref: '#/components/schemas/AppSecretToken'
+    VpnAuthorizationResponseSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'success'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Client's public key was authorized and is ready to connect
+              * `error` - There was a problem authorizing the client's public key
+        message:
+          type: string
+          example: 'public key "skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k" was authorized'
+          description: An informative message about the status of the response
+    VpnAuthorizationResponseTimeout:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'error'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Client's public key was authorized and is ready to connect
+              * `error` - There was a problem authorizing the client's public key
+        message:
+          type: string
+          example: 'VPN server timed out.'
+          description: An informative message about the status of the response
+    VpnAuthorizationResponseInvalidRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'error'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Client's public key was authorized and is ready to connect
+              * `error` - There was a problem authorizing the client's public key
+        message:
+          type: string
+          example: 'InvalidResponse.'
+          description: An informative message about the status of the response
     AppSecretToken:
       type: string
       example: s27YySDEuSVzkYJGXYnAInGQ3O1ZZ4n8KZMws4luTmDRu0xHwwn2792X3MFKY4ZC
