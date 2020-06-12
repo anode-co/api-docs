@@ -271,7 +271,7 @@ paths:
           description: Invalid Request. Some information provided was not valid
         '404':
           description: Not Found. The account does not exist
-  /vpn/accounts/{email}/password/:
+  /vpn/accounts/{appSecretToken}/password/:
     post:
       tags:
         - Account Management
@@ -280,10 +280,10 @@ paths:
       operationId: changePassword
       parameters:
         - in: path
-          name: email
+          name: appSecretToken
           schema:
-            $ref: '#/components/schemas/AccountEmail'
-          description: The account holder's email
+            $ref: '#/components/schemas/AppSecretToken'
+          description: The app token connected to a registered email
           required: true
       responses:
         '202':
@@ -302,9 +302,10 @@ paths:
       operationId: checkChangePasswordRequestStatus
       parameters:
         - in: path
-          name: email
+          name: appSecretToken
           schema:
-            $ref: '#/components/schemas/AccountEmail'
+            $ref: '#/components/schemas/AppSecretToken'
+          description: The app token connected to a registered email
           required: true
       responses:
         '202':
