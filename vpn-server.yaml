@@ -184,7 +184,7 @@ paths:
             - 'delete:vpnServer'
           
   /vpn/servers/{serverPublicKey}/authorize/:
-    get:
+    post:
       tags:
         - Servers
       summary: Client requests a connection to a VPN server. The client's signature will reveal a public key, which is the one authorized by the VPN server.
@@ -197,6 +197,19 @@ paths:
             example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
           description: VPN Server cjdns public key
           required: true
+      requestBody:
+        description: Request connection authorization from a VPN
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: integer
+                  format: timestamp
+                  example: 1592233855
+                  description: Unix timestamp
+        required: true
       responses:
         '200':
           description: Ok. The client is already authorized to connect to the VPN
