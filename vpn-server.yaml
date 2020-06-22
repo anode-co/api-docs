@@ -276,6 +276,28 @@ paths:
                 $ref: '#/components/schemas/AccountCreated'
         '400':
           description: Invalid Request. The input email is invalid or the email is already confirmed.
+  /vpn/accounts/{username}/publickey/:
+    get:
+      tags:
+        - Account Management
+      summary: Get an account's publickey
+      description: Get the cjdns public key for the account
+      operationId: getAccountPublickey
+      parameters:
+        - in: path
+          name: username
+          schema:
+            $ref: '#/components/schemas/AccountUsername'
+          required: true
+      responses:
+        '200':
+          description: OK. Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanonicalPublicKeyOutput'
+        '404':
+          description: Not Found. No account matching this username could be found
   /vpn/accounts/{username}/initialemail/:
     post:
       tags:
@@ -289,11 +311,6 @@ paths:
           schema:
             $ref: '#/components/schemas/AccountUsername'
           required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountEmail'
       responses:
         '200':
           description: OK. Email address added
@@ -316,11 +333,6 @@ paths:
           schema:
             $ref: '#/components/schemas/AccountUsername'
           required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountPassword'
       responses:
         '200':
           description: OK. Password was added
