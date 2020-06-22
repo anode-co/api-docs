@@ -277,6 +277,23 @@ paths:
                 $ref: '#/components/schemas/AccountCreated'
         '400':
           description: Invalid Request. The input email is invalid or the email is already confirmed.
+  /vpn/accounts/authorize/:
+    get:
+      tags:
+        - Account Management
+      summary: Verify Login
+      description: Verify login information for an account with the password and email or username.
+      operationId: verifyLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountLoginInputs'
+      responses:
+        '200':
+          description: Account authorized
+        '401':
+          description: Unauthorized. These credentials could not be authorized.
   /vpn/accounts/{email}/confirmstatus/:
     get:
       tags:
@@ -787,6 +804,27 @@ components:
           format: email
           description: A valid email address that can be uniquely identified on the system
           example: jon@example.com
+        username:
+          type: string
+          description: A unique username
+          example: someuniqueusername
+        password:
+          type: string
+          format: password
+          description: A password that includes numbers, letters and is at least 9 characters long
+          example: Abo13m!2
+    AccountLoginInputs:
+      type: object
+      properties:
+        emailOrUsername:
+          type: string
+          description: Email or username
+          example: jon@example.com
+        password:
+          type: string
+          format: password
+          description: A password that includes numbers, letters and is at least 9 characters long
+          example: Abo13m!2
     AccountCreated:
       type: object
       properties:
