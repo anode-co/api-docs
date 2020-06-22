@@ -263,7 +263,6 @@ paths:
       description: When a new email address is submitted, the email address is registered with the system and a unique token is generated for that email. This token must be kept secret and is used for operations related to account management.
       operationId: registerNewClient
       requestBody:
-        description: 'Email or other account registration information'
         content:
           application/json:
             schema:
@@ -277,8 +276,62 @@ paths:
                 $ref: '#/components/schemas/AccountCreated'
         '400':
           description: Invalid Request. The input email is invalid or the email is already confirmed.
+  /vpn/accounts/{username}/initialemail/:
+    post:
+      tags:
+        - Account Management
+      summary: Attach an email to a newly-created account
+      description: When a new account is created, it doesn't yet have an email address. This method attaches an email address to the user. This method can only be performed once per account.
+      operationId: attachInitialEmail
+      parameters:
+        - in: path
+          name: username
+          schema:
+            $ref: '#/components/schemas/AccountUsername'
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountEmail'
+      responses:
+        '200':
+          description: OK. Email address added
+        '400':
+          description: Invalid Request. The email address is already registered or the account already has an email address. A JSON body will explain the error.
+        '401':
+          description: Unauthorized. The header signature could not be verified
+        '404':
+          description: Not Found. No account matching this username could be found
+  /vpn/accounts/{username}/initialpassword/:
+    post:
+      tags:
+        - Account Management
+      summary: Attach a password to a newly-created account
+      description: When a new account is created, it doesn't yet have a password. This method attaches a new password to the user. This method can only be performed once per account.
+      operationId: attachInitialPassword
+      parameters:
+        - in: path
+          name: username
+          schema:
+            $ref: '#/components/schemas/AccountUsername'
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountPassword'
+      responses:
+        '200':
+          description: OK. Password was added
+        '400':
+          description: Invalid Request. The account already has a password. A JSON body will explain the error.
+        '401':
+          description: Unauthorized. The header signature could not be verified
+        '404':
+          description: Not Found. No account matching this username could be found
   /vpn/accounts/authorize/:
-    get:
+    post:
       tags:
         - Account Management
       summary: Verify Login
@@ -294,7 +347,7 @@ paths:
           description: Account authorized
         '401':
           description: Unauthorized. These credentials could not be authorized.
-  /vpn/accounts/{email}/confirmstatus/:
+  /vpn/accounts/{username}/confirmstatus/:
     get:
       tags:
         - Account Management
@@ -303,10 +356,9 @@ paths:
       operationId: checkAccountRegistrationStatus
       parameters:
         - in: path
-          name: email
+          name: username
           schema:
-            $ref: '#/components/schemas/AccountEmail'
-          description: The account holder's email
+            $ref: '#/components/schemas/AccountUsername'
           required: true
       responses:
         '202':
@@ -799,20 +851,8 @@ components:
     AccountRegistrationInputs:
       type: object
       properties:
-        email:
-          type: string
-          format: email
-          description: A valid email address that can be uniquely identified on the system
-          example: jon@example.com
         username:
-          type: string
-          description: A unique username
-          example: someuniqueusername
-        password:
-          type: string
-          format: password
-          description: A password that includes numbers, letters and is at least 9 characters long
-          example: Abo13m!2
+          $ref: "#/components/schemas/AccountUsername"
     AccountLoginInputs:
       type: object
       properties:
@@ -821,17 +861,14 @@ components:
           description: Email or username
           example: jon@example.com
         password:
-          type: string
-          format: password
-          description: A password that includes numbers, letters and is at least 9 characters long
-          example: Abo13m!2
+          $ref: "#/components/schemas/AccountPassword"
     AccountCreated:
       type: object
       properties:
         accountConfirmationStatusUrl:
           type: string
           format: url
-          example: '/api/0.3/vpn/accounts/email@example.com/confirmstatus/'
+          example: '/api/0.3/vpn/accounts/username/confirmstatus/'
           description: The URL to check on the newly registered email confirmation status
         passwordResetToken:
           $ref: "#/components/schemas/PasswordResetToken"
@@ -872,7 +909,7 @@ components:
         accountConfirmationStatusUrl:
           type: string
           format: url,
-          example: 'http://vpn.anode.co/vpn/accounts/email@example.com/confirmstatus/'
+          example: 'http://vpn.anode.co/vpn/accounts/username/confirmstatus/'
           description: The URL to check for the account confirmation status
         passwordResetToken:
           $ref: "#/components/schemas/PasswordResetToken"
@@ -960,6 +997,15 @@ components:
       format: email
       description: Email address used to uniquely identify account on the system.
       example: jon@example.com
+    AccountUsername:
+      type: string
+      description: A string less than 200 characters long that uniquely identifies the user
+      example: myspecialusername
+    AccountPassword:
+        type: string
+        format: password
+        description: A password that includes numbers, letters and is at least 9 characters long
+        example: Abo13m!2
     PasswordResetToken:
       type: string
       description: A token associated with the user's account that can be used to initiate a password recovery process.
