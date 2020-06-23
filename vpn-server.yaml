@@ -314,6 +314,10 @@ paths:
       responses:
         '200':
           description: OK. Email address added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitialEmailAttachedConfirmation'
         '400':
           description: Invalid Request. The email address is already registered or the account already has an email address. A JSON body will explain the error.
         '401':
@@ -336,8 +340,16 @@ paths:
       responses:
         '200':
           description: OK. Password was added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitialPasswordSuccessStatusResponse'
         '400':
           description: Invalid Request. The account already has a password. A JSON body will explain the error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitialPasswordFailedStatusResponse'
         '401':
           description: Unauthorized. The header signature could not be verified
         '404':
@@ -877,13 +889,16 @@ components:
     AccountCreated:
       type: object
       properties:
+        passwordResetToken:
+          $ref: "#/components/schemas/PasswordResetToken"
+    InitialEmailAttachedConfirmation:
+      type: object
+      properties:
         accountConfirmationStatusUrl:
           type: string
           format: url
           example: '/api/0.3/vpn/accounts/username/confirmstatus/'
           description: The URL to check on the newly registered email confirmation status
-        passwordResetToken:
-          $ref: "#/components/schemas/PasswordResetToken"
     PasswordResetAcceptedResponse:
       type: object
       properties:
@@ -1040,6 +1055,28 @@ components:
           type: string
           example: 'rsa-sha256-nnaetuhasnt-1'
           description: A unique identifier for a public key.
+    InitialPasswordSuccessStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+          description: Operation status
+        message:
+          type: string
+          example: The password has been set
+          description: The message describing the statusof the operation
+    InitialPasswordFailedStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: failed
+          description: Operation status
+        message:
+          type: string
+          example: There is already a password associated with an account
+          description: The message describing the statusof the operation
     CanonicalPublicKeyOutput:
       type: object
       properties:
