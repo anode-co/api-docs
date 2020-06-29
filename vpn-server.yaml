@@ -276,6 +276,26 @@ paths:
                 $ref: '#/components/schemas/AccountCreated'
         '400':
           description: Invalid Request. The input email is invalid or the email is already confirmed.
+  /vpn/accounts/username/:
+    get:
+      tags:
+        - Account Management
+      summary: Generate a random username
+      description: The system requires a username to identify users, but doesn't require the user to decide what their username is. As a curtesy, a random unallocated username can be given to the user.
+      operationId: generateUsername
+      responses:
+        '200':
+          description: Created. New account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Username'
+        '400':
+          description: Invalid Request. A username could not be generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouldNotGenerateUsernameError'
   /vpn/accounts/{username}/publickey/:
     get:
       tags:
@@ -1084,6 +1104,28 @@ components:
           type: string
           example: 'skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k'
           description: A cjdns public key
+    Username:
+      type: object
+      properties:
+        username:
+          type: string
+          example: 'ok-squirrel'
+          description: a username
+    CouldNotGenerateUsernameError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'error'
+          enum:
+            - error
+          description: >
+            Status:
+              * `error` - There was a problem generating a username
+        message:
+          type: string
+          example: 'A username could not be generated.'
+          description: An informative message about the status of the response
     VpnServerStatusResponse:
       type: object
       properties:
