@@ -554,7 +554,7 @@ paths:
       security:
         - ApiKey:
           - 'write:version'
-  /vpn/client/event/:
+  /vpn/clients/events/:
     post:
       tags:
         - Events
@@ -587,6 +587,8 @@ components:
           type: string
           description: Client's cjdns public key
           example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+        username:
+          $ref: "#/components/schemas/AccountUsername"
         error:
           type: string
           example: connection
