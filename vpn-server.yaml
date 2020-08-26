@@ -391,6 +391,19 @@ paths:
           description: Account authorized
         '401':
           description: Unauthorized. These credentials could not be authorized.
+    delete:
+      tags:
+        - Account Management
+      summary: Log out
+      description: Log out from the system
+      operationId: logout
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccessStatusResponse'
   /vpn/accounts/{username}/confirmstatus/:
     get:
       tags:
@@ -1088,6 +1101,13 @@ components:
           type: string
           example: The password has been set
           description: The message describing the statusof the operation
+    LogoutSuccessStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+          description: Operation status
     InitialPasswordFailedStatusResponse:
       type: object
       properties:
