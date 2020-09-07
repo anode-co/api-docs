@@ -389,8 +389,16 @@ paths:
       responses:
         '200':
           description: Account authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountUsernameResponse'
         '401':
           description: Unauthorized. These credentials could not be authorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidLoginStatusResponse'
     delete:
       tags:
         - Account Management
@@ -1170,6 +1178,30 @@ components:
           format:  integer
           example: '1591963516'
           description: Unix timestamp representing the date and time the authorization and allocated IP addresses expires
+    AccountUsernameResponse:
+      type: object
+      properties:
+        username:
+          type: string
+          description: User's username
+          example: 'ok-squirrel'
+    InvalidLoginStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'failed'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Method completed successfully
+              * `error` - Error processing request
+        message:
+          type: string
+          example: 'Invalid credentials'
+          description: Human readable text describing the nature of the status
   securitySchemes:
     ApiKey:
       description: This system uses cryptographically signed messages using the draft-cavage-http-signatures-10 draft standard for authorization.
