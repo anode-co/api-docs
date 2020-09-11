@@ -412,6 +412,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogoutSuccessStatusResponse'
+  /vpn/accounts/{username}/changepassword/:
+    post:
+      tags:
+        - Account Management
+      summary: Change Password
+      description: Change the password of the currently logged-in user
+      operationId: changePassword
+      parameters:
+        - in: path
+          name: username
+          schema:
+            $ref: '#/components/schemas/AccountUsername'
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordInputs'
+      responses:
+        '200':
+          description: Passsword changePassword
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePasswordSuccess'
+        '400':
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidLoginStatusResponse'
+        '401':
+          description: Unauthorized. These credentials could not be authorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidLoginStatusResponse'
+    delete:
+      tags:
+        - Account Management
+      summary: Log out
+      description: Log out from the system
+      operationId: logout
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccessStatusResponse'
   /vpn/accounts/{username}/confirmstatus/:
     get:
       tags:
@@ -1201,6 +1251,34 @@ components:
         message:
           type: string
           example: 'Invalid credentials'
+          description: Human readable text describing the nature of the status
+    ChangePasswordInputs:
+      type: object
+      properties:
+        current_password:
+          type: string
+          example: 'password1'
+          description: User's current password
+        new_password:
+          type: string
+          example: 'password2'
+          description: Desired new password
+    ChangePasswordSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'success'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Method completed successfully
+              * `error` - Error processing request
+        message:
+          type: string
+          example: 'Password changed'
           description: Human readable text describing the nature of the status
   securitySchemes:
     ApiKey:
