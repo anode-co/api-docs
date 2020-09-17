@@ -449,19 +449,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvalidLoginStatusResponse'
-    delete:
-      tags:
-        - Account Management
-      summary: Log out
-      description: Log out from the system
-      operationId: logout
-      responses:
-        '200':
-          description: Logged out
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LogoutSuccessStatusResponse'
   /vpn/accounts/{username}/confirmstatus/:
     get:
       tags:
@@ -492,18 +479,18 @@ paths:
           description: Invalid Request. Some information provided was not valid
         '404':
           description: Not Found. The account does not exist
-  /vpn/accounts/{passwordResetToken}/password/:
+  /vpn/accounts/{emailOrUsername}/password/:
     post:
       tags:
         - Account Management
       summary: Request to change the password of an existing client account. 
       description: The server will send an email containing a confirmation link if the email address is registered on the system. The API will respond with an endpoint URL which responds with information regarding the state of the confirmation.
-      operationId: changePassword
+      operationId: requestPasswordReset
       parameters:
         - in: path
-          name: passwordResetToken
+          name: emailOrUsername
           schema:
-            $ref: '#/components/schemas/PasswordResetToken'
+            $ref: '#/components/schemas/AccountEmailOrUsername'
           required: true
       responses:
         '202':
@@ -522,9 +509,9 @@ paths:
       operationId: checkChangePasswordRequestStatus
       parameters:
         - in: path
-          name: passwordResetToken
+          name: emailOrUsername
           schema:
-            $ref: '#/components/schemas/PasswordResetToken'
+            $ref: '#/components/schemas/AccountEmailOrUsername'
           required: true
       responses:
         '202':
@@ -542,7 +529,34 @@ paths:
         '400':
           description: Invalid Request. Some information provided was not valid
         '404':
-          description: Not Found. The password reset request has timed out, does not exist, or  has been  completed
+          description: Not Found. The password reset request has timed out, does not exist, or  has been  completed 
+  /vpn/accounts/{emailOrUsername}/password/change/:
+    post:
+      tags:
+        - Account Management
+      summary: Change a user's password after a successful reset request
+      description: Change a user's password after a successful reset request
+      operationId: setNewPassword
+      parameters:
+        - in: path
+          name: emailOrUsername
+          schema:
+            $ref: '#/components/schemas/AccountEmailOrUsername'
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordInputs'
+      responses:
+        '200':
+          description: OK. The password has been changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetStatusSuccessful'
+        '404':
+          description: A user with this email, username and/or password reset token could not be found
   /vpn/client/version/{clientOs}/:
     get:
       tags:
@@ -965,6 +979,26 @@ components:
           example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
       xml:
         name: Client Software Version
+    ResetPasswordInputs:
+      type: object
+      properties:
+        passwordResetToken:
+          $ref: "#/components/schemas/PasswordResetToken"
+        newPassword:
+          type: string
+          example: antau9432wm!snt3
+          description: The new password for the account
+    PasswordResetStatusSuccessful:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+          description: The outcome of the password reset
+        message:
+          type: string
+          example: Password changed
+          description: Description of the outcome
     AccountRegistrationInputs:
       type: object
       properties:
@@ -1021,8 +1055,8 @@ components:
           description: >
             Status:
               * `complete` - Password reset flow completed
-        backupWalletPassword:
-          $ref: '#/components/schemas/BackupWalletPassword'
+        passwordResetToken:
+          $ref: '#/components/schemas/PasswordResetToken'
     AccountCreationResponse:
       type: object
       properties:
@@ -1112,6 +1146,10 @@ components:
       type: string
       example: s27YySDEuSVzkYJGXYnAInGQ3O1ZZ4n8KZMws4luTmDRu0xHwwn2792X3MFKY4ZC
       description: The app secret for an app to encrypt or decrypt their wallet.
+    PasswordResetToken:
+      type: string
+      example: s27YySDEuSVzkYJGXYnAInGQ3O1ZZ4n8KZMws4luTmDRu0xHwwn2792X3MFKY4ZC
+      description: A one-time password to reset a user's password.
     AccountEmail:
       type: string
       format: email
@@ -1121,15 +1159,15 @@ components:
       type: string
       description: A string less than 200 characters long that uniquely identifies the user
       example: myspecialusername
+    AccountEmailOrUsername:
+      type: string
+      description: A username or email address attached to an account
+      example: myspecialusername
     AccountPassword:
         type: string
         format: password
         description: A password that includes numbers, letters and is at least 9 characters long
         example: Abo13m!2
-    PasswordResetToken:
-      type: string
-      description: A token associated with the user's account that can be used to initiate a password recovery process.
-      example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
     PublicKeyInput:
       type: object
       properties:
