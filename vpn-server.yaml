@@ -479,6 +479,28 @@ paths:
           description: Invalid Request. Some information provided was not valid
         '404':
           description: Not Found. The account does not exist
+  /vpn/accounts/{emailOrUsername}/delete/:
+    delete:
+      tags:
+        - Account Management
+      summary: Delete an account
+      description: The server will remove an account and all related information.
+      operationId: deleteAccount
+      parameters:
+        - in: path
+          name: emailOrUsername
+          schema:
+            $ref: '#/components/schemas/AccountEmailOrUsername'
+          required: true
+      responses:
+        '200':
+          description: Ok. User was delteed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletedResponse'
+        '401':
+          description: The provided email address and/or secret token was invalid
   /vpn/accounts/{emailOrUsername}/password/:
     post:
       tags:
@@ -1317,6 +1339,23 @@ components:
         message:
           type: string
           example: 'Password changed'
+          description: Human readable text describing the nature of the status
+    AccountDeletedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'success'
+          enum:
+            - success
+            - error
+          description: >
+            Status:
+              * `success` - Method completed successfully
+              * `error` - Error processing request
+        message:
+          type: string
+          example: 'User abc123 has been deleted'
           description: Human readable text describing the nature of the status
   securitySchemes:
     ApiKey:
