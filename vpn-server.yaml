@@ -255,6 +255,67 @@ paths:
       security:
         - ApiKey: 
             - 'write:vpnConnect'
+  /vpn/servers/{serverPublicKey}/rating/:
+    get:
+      tags:
+        - Servers
+      summary: Client requests the  current rating of a VPN server
+      operationId: checkVpnServerRating
+      parameters:
+        - in: path
+          name: serverPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN Server cjdns public key
+          required: true
+      responses:
+        '200':
+          description: OK. The VPN server was found
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VpnServerRatingResponse'
+        '404':
+          description: Not Found. This VPN server is not registered
+      security:
+        - ApiKey: 
+            - 'read:vpnRate'
+    post:
+      tags:
+        - Servers
+      summary: Client submits a rating for a VPN
+      operationId: userSubmitVpnRating
+      parameters:
+        - in: path
+          name: serverPublicKey
+          schema:
+            type: string
+            example: lbqr0rzyc2tuysw3w8gfr95u68kujzlq7zht5hyf452u8yshr120.k
+          description: VPN Server cjdns public key
+          required: true
+      requestBody:
+        description: Returns a public key ID for reference on the server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateVpnServer'
+      responses:
+        '201':
+          description: Accepted. The rating has been applied
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VpnServerRatingResponse'
+        '400':
+          description: Bad Request. Some information provided was invalid
+        '401':
+          description: Unauthorized. The connection or authorization was rejected
+        '404':
+          description: Not Found. This VPN server is not registered
+      security:
+        - ApiKey: 
+            - 'write:vpnRate'
   /vpn/accounts/:
     post:
       tags:
@@ -709,6 +770,7 @@ components:
             - cjdroute
             - cjdnsSocket
             - vpnService
+            - appUsage
             - other
           description: >
             Error type:
@@ -975,6 +1037,22 @@ components:
           format: date-time
           description: date-time of most recent appearance, at server time, as defined by  RFC 3339, section 5.6
           example: "2017-07-21T17:32:28Z"
+        averageRating:
+          type: number
+          format: float
+          nullable: true
+          exclusiveMinimum: false
+          exclusiveMaximum: false
+          minimum: 1
+          maximum: 5
+          example: 4.3
+          description: The average cumulative rating for a VPN server
+        numRatings:
+          type: integer
+          exclusiveMinimum: false
+          minimum: 0
+          example: 389
+          description: The total number of ratings for a VPN
       xml:
         name: Client Software Version
     cjdnsPeeringLine:
@@ -1357,6 +1435,34 @@ components:
           type: string
           example: 'User abc123 has been deleted'
           description: Human readable text describing the nature of the status
+    VpnServerRatingResponse:
+      type: object
+      properties:
+        averageRating:
+          type: number
+          format: float
+          minimum: 1.0
+          maximum: 5.0
+          example: 3.8
+          nullable: true
+          description: The average cumulative rating of a VPN server
+        numRatings:
+          type: integer
+          minimum: 0
+          example: 349
+          exclusiveMinimum: false
+          description: The total number of user ratings this VPN has received
+    RateVpnServer:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 3
+          exclusiveMinimum: false
+          exclusiveMaximum: false
+          description: The user's rating of a VPN server
   securitySchemes:
     ApiKey:
       description: This system uses cryptographically signed messages using the draft-cavage-http-signatures-10 draft standard for authorization.
