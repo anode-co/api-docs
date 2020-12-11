@@ -255,6 +255,36 @@ paths:
       security:
         - ApiKey: 
             - 'write:vpnConnect'
+  /vpn/servers/ratings/:
+    post:
+      tags:
+        - Servers
+      summary: Client submits ratings for a VPN
+      operationId: userSubmitVpnRatings
+      requestBody:
+        description: Returns a public key ID for reference on the server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateVpnServer'
+      responses:
+        '201':
+          description: Accepted. The rating has been applied
+          content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/VpnServerRatingResponse'
+        '400':
+          description: Bad Request. Some information provided was invalid
+        '401':
+          description: Unauthorized. The connection or authorization was rejected
+        '404':
+          description: Not Found. This VPN server is not registered
+      security:
+        - ApiKey: 
+            - 'write:vpnRate'
   /vpn/servers/{serverPublicKey}/rating/:
     get:
       tags:
@@ -734,6 +764,32 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        '200':
+          description: OK. Event logged
+        '405':
+          description: Invalid input
+        '403':
+          description: Unauthorized
+      security:
+        - ApiKey:
+          - 'write:event'
+          
+  /vpn/clients/events/bulk/:
+    post:
+      tags:
+        - Events
+      summary: Client adds loggable events such as a crash report
+      operationId: addLogItems
+      requestBody:
+        description: Client logs an event
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
         required: true
       responses:
         '200':
