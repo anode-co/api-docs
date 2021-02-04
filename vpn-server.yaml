@@ -346,6 +346,22 @@ paths:
       security:
         - ApiKey: 
             - 'write:vpnRate'
+  /vpn/servers/cjdns/peeringlines/:
+    get:
+      tags:
+        - Peering Lines
+      summary: Get the current active cjdns peering lines
+      operationId: getCjdnsPeeringLines
+      responses:
+        '200':
+          description: OK. Cjdns peering line list
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PeeringLineList'
+      security:
+        - ApiKey: 
+            - 'read:vpnPeeringLines'  
   /vpn/accounts/:
     post:
       tags:
@@ -1519,6 +1535,35 @@ components:
           exclusiveMinimum: false
           exclusiveMaximum: false
           description: The user's rating of a VPN server
+    PeeringLine:
+      type: object
+      properties:
+        ip:
+          type: string
+          description: VPN server's public IP address
+          example: 172.22.123.3
+        port:
+          type: number
+          minimum: 1
+          maximum: 65535
+          description: VPN server's public port
+          example: 11234
+        login:
+          type: string
+          description: VPN server's cjdns login
+          example: mycjdnslogin
+        password:
+          type: string
+          description: VPN server's cjdns password
+          example: ppp113420aenstuae9smaentu
+        publicKey:
+          type: string
+          description: VPN server's cjdns public key
+          example: skZ6UtW5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB.k
+    PeeringLineList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PeeringLine'
   securitySchemes:
     ApiKey:
       description: This system uses cryptographically signed messages using the draft-cavage-http-signatures-10 draft standard for authorization.
